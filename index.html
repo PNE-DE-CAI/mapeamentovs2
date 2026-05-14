@@ -58,6 +58,7 @@
     .improvement-section h4 { margin-bottom: 0.5rem; color: #166534; }
     .student-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
     .student-tag { background: white; border-radius: 40px; padding: 0.2rem 0.8rem; font-size: 0.8rem; border: 1px solid #bbf7d0; color: #14532d; }
+    .char-counter { text-align: right; font-size: 0.75rem; color: #64748b; margin-top: 4px; }
     @media (max-width: 700px) { .main-container { padding: 12px; } .tabs-nav { overflow-x: auto; flex-wrap: nowrap; } .tab-btn { white-space: nowrap; padding: 0.5rem 1rem; } .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
     @media print {
       body { background: white; padding: 0; margin: 0; }
@@ -86,7 +87,7 @@
     <button class="tab-btn" data-tab="intervencao"><i class="fas fa-calendar-check"></i> Plano de Intervenção (Dia D)</button>
   </div>
 
-  <!-- DASHBOARD (mesmo conteúdo original) -->
+  <!-- DASHBOARD (mantido igual) -->
   <div id="dashboard" class="tab-content active">
     <div class="info-box">
       <i class="fas fa-info-circle"></i> <strong>Referência de equivalência SEE-SP (3 níveis):</strong>
@@ -122,28 +123,17 @@
     <div class="card">
       <h3><i class="fas fa-trophy"></i> Estudantes com Melhora por Disciplina</h3>
       <div class="grid-3">
-        <div class="improvement-section" style="border-left-color: #22c55e;">
-          <h4><i class="fas fa-book-open"></i> Melhora em LP</h4>
-          <div id="melhoraLPList" class="student-list">---</div>
-        </div>
-        <div class="improvement-section" style="border-left-color: #eab308;">
-          <h4><i class="fas fa-calculator"></i> Melhora em MT</h4>
-          <div id="melhoraMTList" class="student-list">---</div>
-        </div>
-        <div class="improvement-section" style="border-left-color: #3b82f6;">
-          <h4><i class="fas fa-star"></i> Melhora em Ambas</h4>
-          <div id="melhoraAmbasList" class="student-list">---</div>
-        </div>
+        <div class="improvement-section" style="border-left-color: #22c55e;"><h4><i class="fas fa-book-open"></i> Melhora em LP</h4><div id="melhoraLPList" class="student-list">---</div></div>
+        <div class="improvement-section" style="border-left-color: #eab308;"><h4><i class="fas fa-calculator"></i> Melhora em MT</h4><div id="melhoraMTList" class="student-list">---</div></div>
+        <div class="improvement-section" style="border-left-color: #3b82f6;"><h4><i class="fas fa-star"></i> Melhora em Ambas</h4><div id="melhoraAmbasList" class="student-list">---</div></div>
       </div>
     </div>
 
     <div class="card">
       <h3><i class="fas fa-table-list"></i> Detalhamento Individual e Farol</h3>
       <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr><th>Escola / Turma</th><th>Estudante</th><th>Equiv. LP</th><th>Status ADD LP</th><th>Farol LP</th><th>Equiv. MT</th><th>Status ADD MT</th><th>Farol MT</th><th>PP LP%</th><th>PP MT%</th></tr>
-          </thead>
+        <tr>
+          <thead><tr><th>Escola / Turma</th><th>Estudante</th><th>Equiv. LP</th><th>Status ADD LP</th><th>Farol LP</th><th>Equiv. MT</th><th>Status ADD MT</th><th>Farol MT</th><th>PP LP%</th><th>PP MT%</th></tr></thead>
           <tbody id="dashTableBody"></tbody>
         </table>
       </div>
@@ -152,6 +142,7 @@
 
   <!-- META-ANÁLISE (CRUD + DESCRITOR + INSERÇÃO EM LOTE) -->
   <div id="meta" class="tab-content">
+    <!-- Formulário de cadastro de estudante -->
     <div class="card">
       <h3 id="formTitle"><i class="fas fa-plus-circle"></i> Cadastro / Edição de Estudante</h3>
       <form id="studentForm" class="form-grid">
@@ -162,15 +153,9 @@
         <input type="text" id="sProfessor" placeholder="Nome do Professor" required>
         <input type="text" id="sNome" placeholder="Nome do Estudante" required>
         <input type="text" id="sAddLPeq" placeholder="Equivalência LP (ex: 1º ano)">
-        <select id="sAddLPstatus" required>
-          <option value="">Selecione o status LP</option>
-          <option>Abaixo do Básico</option><option>Básico</option><option>Proficiente</option>
-        </select>
+        <select id="sAddLPstatus" required><option value="">Selecione o status LP</option><option>Abaixo do Básico</option><option>Básico</option><option>Proficiente</option></select>
         <input type="text" id="sAddMTeq" placeholder="Equivalência MT (ex: 2º ano)">
-        <select id="sAddMTstatus" required>
-          <option value="">Selecione o status MT</option>
-          <option>Abaixo do Básico</option><option>Básico</option><option>Proficiente</option>
-        </select>
+        <select id="sAddMTstatus" required><option value="">Selecione o status MT</option><option>Abaixo do Básico</option><option>Básico</option><option>Proficiente</option></select>
         <input type="number" id="sPPLP" min="0" max="100" step="0.1" placeholder="Prova Paulista LP (%)">
         <input type="number" id="sPPMT" min="0" max="100" step="0.1" placeholder="Prova Paulista MT (%)">
         <textarea id="sObs" placeholder="Observações (estratégias, intervenções)" rows="2"></textarea>
@@ -181,6 +166,7 @@
       </form>
     </div>
 
+    <!-- Inserção em lote -->
     <div class="card">
       <h3><i class="fas fa-cloud-upload-alt"></i> Inserção em Lote (CSV via texto)</h3>
       <div style="margin-bottom: 1rem;">
@@ -197,6 +183,7 @@
       <div id="loteFeedback" style="margin-top: 10px; font-size: 0.8rem; color: #2c5f8a;"></div>
     </div>
 
+    <!-- Descritor / Habilidade de menor acerto -->
     <div class="card">
       <h3><i class="fas fa-chalkboard-user"></i> Descritor / Habilidade com menor índice de acerto (Prova Paulista 1° Bim)</h3>
       <div class="form-grid" style="margin-top: 12px;">
@@ -204,21 +191,16 @@
         <select id="descritorAno" onchange="carregarDescritor()"><option value="">Todos os Anos</option></select>
         <select id="descritorTurma" onchange="carregarDescritor()"><option value="">Todas as Turmas</option></select>
         <textarea id="descritorTexto" rows="2" placeholder="Ex: D13 - Interpretar gráficos; Habilidade EF07MA33 - baixo desempenho"></textarea>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn" onclick="salvarDescritor()"><i class="fas fa-save"></i> Salvar / Atualizar Descritor</button>
-        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;"><button class="btn" onclick="salvarDescritor()"><i class="fas fa-save"></i> Salvar / Atualizar Descritor</button></div>
       </div>
-      <small><i class="fas fa-info-circle"></i> Selecione escola, ano e turma e escreva o descritor. Clique em "Salvar / Atualizar" para criar ou editar.</small>
-
       <div style="margin-top: 1.5rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
         <label><strong><i class="fas fa-list"></i> Descritores já cadastrados (clique para editar):</strong></label>
-        <select id="listaDescritores" class="form-control" style="margin-top: 8px;" onchange="carregarDescritorPorSelecao()">
-          <option value="">-- Selecione um descritor para editar --</option>
-        </select>
+        <select id="listaDescritores" class="form-control" style="margin-top: 8px;" onchange="carregarDescritorPorSelecao()"><option value="">-- Selecione um descritor para editar --</option></select>
         <button class="btn" style="background: #2c5f8a; margin-top: 8px;" onclick="recarregarListaDescritores()"><i class="fas fa-sync-alt"></i> Recarregar lista</button>
       </div>
     </div>
 
+    <!-- Filtros para o Boletim -->
     <div class="card">
       <h3><i class="fas fa-print"></i> Gerar Boletim da Turma</h3>
       <div class="form-grid">
@@ -227,19 +209,11 @@
         <select id="boletimTurma" onchange="carregarDescritorBoletim()"><option value="">Selecione a Turma</option></select>
         <button class="btn" onclick="gerarBoletim()" style="background:#0f5c3e;"><i class="fas fa-print"></i> Gerar Boletim (Turma filtrada)</button>
       </div>
-      <small><i class="fas fa-info-circle"></i> Selecione escola, ano e turma para gerar o relatório completo da turma.</small>
     </div>
 
     <div class="card">
       <h3><i class="fas fa-database"></i> Registros</h3>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Estudante</th><th>ADD LP</th><th>ADD MT</th><th>PP LP%</th><th>PP MT%</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="crudTableBody"></tbody>
-        </table>
-      </div>
+      <div style="overflow-x: auto;"><table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Estudante</th><th>ADD LP</th><th>ADD MT</th><th>PP LP%</th><th>PP MT%</th><th>Ações</th></tr></thead><tbody id="crudTableBody"></tbody></table></div>
     </div>
   </div>
 
@@ -253,21 +227,19 @@
         <select id="iAno" required><option value="">Selecione o Ano/Série</option></select>
         <select id="iTurma" required><option value="">Selecione a Turma</option></select>
         <input type="text" id="iProfessor" placeholder="Professor" required>
-        <select id="iDisciplina" required>
-          <option value="">Selecione a Disciplina</option>
-          <option>Língua Portuguesa</option><option>Matemática</option>
-        </select>
+        <select id="iDisciplina" required><option value="">Selecione a Disciplina</option><option>Língua Portuguesa</option><option>Matemática</option></select>
         <input type="text" id="iDescritor" placeholder="Questão/Descritor de menor acerto" required>
         <input type="text" id="iAula" placeholder="Aula relacionada com o menor índice de acerto" required>
         <input type="text" id="iAprendizagem" placeholder="Aprendizagem essencial em foco dessa aula" required>
         <div class="form-grid" style="grid-column: 1/-1;">
           <label>Período previsto para execução (dia D):</label>
-          <div style="display: flex; gap: 10px;">
-            <input type="date" id="iDataInicio" required style="flex:1"> <span>até</span>
-            <input type="date" id="iDataFim" required style="flex:1">
-          </div>
+          <div style="display: flex; gap: 10px;"><input type="date" id="iDataInicio" required style="flex:1"> <span>até</span> <input type="date" id="iDataFim" required style="flex:1"></div>
         </div>
-        <textarea id="iDescricao" rows="4" placeholder="Descritivo do seu Plano de intervenção dia D (estratégias, atividades, recursos...)" required></textarea>
+        <div style="grid-column: 1/-1;">
+          <label>Descritivo do seu Plano de intervenção dia D (máx. 1000 caracteres):</label>
+          <textarea id="iDescricao" rows="4" maxlength="1000" placeholder="Descreva as estratégias, atividades, recursos..." required></textarea>
+          <div class="char-counter"><span id="caracteresRestantes">1000</span> caracteres restantes</div>
+        </div>
         <div style="grid-column: 1/-1; display: flex; gap: 12px; flex-wrap: wrap;">
           <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Plano</button>
           <button type="button" class="btn" style="background:#64748b" onclick="resetIntervencaoForm()"><i class="fas fa-eraser"></i> Limpar</button>
@@ -278,12 +250,9 @@
     <div class="card">
       <h3><i class="fas fa-list-alt"></i> Planos de Intervenção Cadastrados</h3>
       <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Disciplina</th><th>Descritor</th><th>Período</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="intervencaoTableBody"></tbody>
-        </table>
+        <table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Disciplina</th><th>Descritor</th><th>Período</th><th>Ações</th></tr></thead>
+        <tbody id="intervencaoTableBody"></tbody>
+      </table>
       </div>
     </div>
   </div>
@@ -351,13 +320,11 @@
     fill('boletimEscola', escolasOficiais);
     fill('boletimAno', anosSeries);
     fill('boletimTurma', turmasLista);
-    // Intervenção
     fill('iEscola', escolasOficiais);
     fill('iAno', anosSeries);
     fill('iTurma', turmasLista);
   }
 
-  // Função getFarol (já existente)
   function getFarol(addStatus, ppPct) {
     if(!addStatus || ppPct === null || ppPct === undefined || ppPct === "") return { cor: 'gray', texto: 'S/D' };
     ppPct = parseFloat(ppPct);
@@ -454,7 +421,7 @@
     document.getElementById('melhoraAmbasList').innerHTML = melhoraAmbas.length ? melhoraAmbas.map(n => `<span class="student-tag">${n}</span>`).join('') : '<span style="color:#64748b">Nenhum estudante</span>';
   }
 
-  // ========== CRUD Estudantes (mesmo do original) ==========
+  // CRUD Estudantes
   const form = document.getElementById('studentForm');
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -474,10 +441,7 @@
       obs: document.getElementById('sObs').value,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    if(!payload.addLPstatus || !payload.addMTstatus) {
-      showToast("Selecione os status de ADD (LP e MT) obrigatoriamente.");
-      return;
-    }
+    if(!payload.addLPstatus || !payload.addMTstatus) { showToast("Selecione os status de ADD (LP e MT) obrigatoriamente."); return; }
     try {
       if(docId) await db.collection('ure_caieiras').doc(docId).update(payload);
       else await db.collection('ure_caieiras').add(payload);
@@ -495,15 +459,7 @@
         const d = doc.data();
         const statusLPClass = `bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
         const statusMTClass = `bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
-        return `<tr>
-          <td>${d.escola || ''}</td><td>${d.anoSerie || ''}</td><td>${d.turma || ''}</td><td>${d.professor || ''}</td>
-          <td>${d.nome || ''}</td><td class="badge ${statusLPClass}">${d.addLPstatus || '❓ Não informado'}</td>
-          <td class="badge ${statusMTClass}">${d.addMTstatus || '❓ Não informado'}</td>
-          <td>${d.ppLP || ''}%</td><td>${d.ppMT || ''}%</td>
-          <td><button class="btn" onclick="editDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button> 
-          <button class="btn btn-del" onclick="delDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button>}<!-- closing tag fix? Actually need proper -->
-        </tr>
-      `;
+        return `<tr><td>${d.escola || ''}</td><td>${d.anoSerie || ''}</td><td>${d.turma || ''}</td><td>${d.professor || ''}</td><td>${d.nome || ''}</td><td class="badge ${statusLPClass}">${d.addLPstatus || '❓ Não informado'}</td><td class="badge ${statusMTClass}">${d.addMTstatus || '❓ Não informado'}</td><td>${d.ppLP || ''}%</td><td>${d.ppMT || ''}%</td><td><button class="btn" onclick="editDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button> <button class="btn btn-del" onclick="delDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button></td></tr>`;
       }).join('');
     });
   }
@@ -550,15 +506,9 @@
       if(cols.length < 12) { errorCount++; continue; }
       const [escola, anoSerie, turma, professor, nome, eqLP, statusLP, eqMT, statusMT, ppLP, ppMT, obs] = cols;
       if(!statusLP || !statusMT) { errorCount++; continue; }
-      if(!["Abaixo do Básico","Básico","Proficiente"].includes(statusLP) || !["Abaixo do Básico","Básico","Proficiente"].includes(statusMT)) {
-        errorCount++; continue;
-      }
+      if(!["Abaixo do Básico","Básico","Proficiente"].includes(statusLP) || !["Abaixo do Básico","Básico","Proficiente"].includes(statusMT)) { errorCount++; continue; }
       try {
-        await db.collection('ure_caieiras').add({
-          escola, anoSerie, turma, professor, nome, addLPeq: eqLP, addLPstatus: statusLP,
-          addMTeq: eqMT, addMTstatus: statusMT, ppLP, ppMT, obs,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        await db.collection('ure_caieiras').add({ escola, anoSerie, turma, professor, nome, addLPeq: eqLP, addLPstatus: statusLP, addMTeq: eqMT, addMTstatus: statusMT, ppLP, ppMT, obs, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
         successCount++;
       } catch(e) { errorCount++; }
     }
@@ -646,10 +596,7 @@
     const esc = document.getElementById('boletimEscola').value;
     const ano = document.getElementById('boletimAno').value;
     const turma = document.getElementById('boletimTurma').value;
-    if (!esc || !ano || !turma) {
-      showToast("Selecione uma escola, ano e turma específicos para gerar o boletim.");
-      return;
-    }
+    if (!esc || !ano || !turma) { showToast("Selecione uma escola, ano e turma específicos."); return; }
     await carregarDescritorBoletim();
     let ref = db.collection('ure_caieiras');
     ref = ref.where('escola', '==', esc).where('anoSerie', '==', ano).where('turma', '==', turma);
@@ -669,37 +616,18 @@
     });
     const perfil = abaixoCount > (total * 0.5) ? "Crítico (>50% abaixo)" : "Estável (<50% abaixo)";
     const descritor = descritorBoletimGlobal;
-    const html = `...`; // (mesmo conteúdo de antes, omitido por brevidade, mas mantido)
-    // Para não repetir, manteremos a função igual, apenas copiamos o HTML original.
-    // Como o código é longo, usarei uma versão compacta mas funcional.
     const win = window.open();
     win.document.write(`
-      <!DOCTYPE html>
-      <html><head><meta charset="UTF-8"><title>Boletim</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"><style>
-        body { font-family: 'Inter', sans-serif; padding: 2rem; }
-        .header { text-align: center; border-bottom: 2px solid #d32f2f; margin-bottom: 1rem; }
-        .info, .kpi-grid { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
-        .kpi-card { background: #f8fafc; border-radius: 20px; padding: 1rem; text-align: center; flex:1; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #0a2f6c; color: white; padding: 0.5rem; }
-        td { padding: 0.5rem; border-bottom: 1px solid #ccc; }
-        .badge { padding: 0.2rem 0.5rem; border-radius: 20px; color: white; display: inline-block; }
-        .bg-abaixodobásico { background: #ef4444; }
-        .bg-básico { background: #eab308; color: #1f2937; }
-        .bg-proficiente { background: #22c55e; }
-        .farol { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 4px; }
-        .f-verde { background: #22c55e; }
-        .f-amarelo { background: #eab308; }
-        .f-vermelho { background: #ef4444; }
-      </style></head>
-      <body><div class="header"><h1>URE-CAIEIRAS - Boletim</h1><p>ADD vs Prova Paulista (1º Bim)</p></div>
-      <div class="info"><div><strong>Escola:</strong> ${esc}</div><div><strong>Ano:</strong> ${ano}</div><div><strong>Turma:</strong> ${turma}</div></div>
-      <div class="kpi-grid"><div class="kpi-card">Total: ${total}</div><div class="kpi-card">Abaixo (ADD): ${abaixoCount} (${Math.round(abaixoCount/total*100)}%)</div><div class="kpi-card">Farol: 🟢${melhora} 🟡${estag} 🔴${piora}</div><div class="kpi-card">Perfil: ${perfil}</div></div>
-      <div style="background:#fef9e3; padding:0.8rem;"><strong>Descritor menor acerto:</strong> ${descritor}</div>
-      <h3>Detalhamento</h3>
-      <table><thead><tr><th>Estudante</th><th>ADD LP</th><th>Farol LP</th><th>PP LP%</th><th>ADD MT</th><th>Farol MT</th><th>PP MT%</th></tr></thead><tbody>
+      <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Boletim - ${esc} - ${ano} - Turma ${turma}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+      <style>body{font-family:'Inter',sans-serif;padding:2rem;}.header{text-align:center;border-bottom:2px solid #d32f2f;margin-bottom:1rem;}.info,.kpi-grid{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;}.kpi-card{background:#f8fafc;border-radius:20px;padding:1rem;text-align:center;flex:1;}table{width:100%;border-collapse:collapse;}th{background:#0a2f6c;color:white;padding:0.5rem;}td{padding:0.5rem;border-bottom:1px solid #ccc;}.badge{padding:0.2rem 0.5rem;border-radius:20px;color:white;display:inline-block;}.bg-abaixodobásico{background:#ef4444;}.bg-básico{background:#eab308;color:#1f2937;}.bg-proficiente{background:#22c55e;}.farol{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;}.f-verde{background:#22c55e;}.f-amarelo{background:#eab308;}.f-vermelho{background:#ef4444;}</style>
+      </head><body><div class="header"><h1>URE-CAIEIRAS - Boletim de Acompanhamento</h1><p>ADD vs Prova Paulista (1º Bimestre)</p></div>
+      <div class="info"><div><strong>Escola:</strong> ${esc}</div><div><strong>Ano/Série:</strong> ${ano}</div><div><strong>Turma:</strong> ${turma}</div><div><strong>Data:</strong> ${new Date().toLocaleDateString()}</div></div>
+      <div class="kpi-grid"><div class="kpi-card">Total Alunos: ${total}</div><div class="kpi-card">Abaixo (ADD): ${abaixoCount} (${Math.round(abaixoCount/total*100)||0}%)</div><div class="kpi-card">Farol: 🟢${melhora} 🟡${estag} 🔴${piora}</div><div class="kpi-card">Perfil: ${perfil}</div></div>
+      <div style="background:#fef9e3;padding:0.8rem;border-radius:16px;"><strong>📉 Descritor de menor acerto:</strong><br>${descritor}</div>
+      <h3>Detalhamento por Estudante</h3><table><thead><tr><th>Estudante</th><th>ADD LP</th><th>Farol LP</th><th>PP LP%</th><th>ADD MT</th><th>Farol MT</th><th>PP MT%</th></tr></thead><tbody>
         ${data.map(d => `<tr><td>${d.nome||'--'}</td><td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td><td><span class="farol ${d.farolLP.cor}"></span>${d.farolLP.texto}</td><td>${d.ppLP??'-'}%</td><td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td><td><span class="farol ${d.farolMT.cor}"></span>${d.farolMT.texto}</td><td>${d.ppMT??'-'}%</td></tr>`).join('')}
-      </tbody></table><div class="footer">Emissão: ${new Date().toLocaleDateString()}</div></body></html>
+      </tbody></table><div class="footer">Sistema URE-CAIEIRAS - ADD vs Prova Paulista 1º Bimestre</div></body></html>
     `);
     win.document.close();
   }
@@ -749,12 +677,7 @@
     const tbody = document.getElementById('intervencaoTableBody');
     tbody.innerHTML = snap.docs.map(doc => {
       const p = doc.data();
-      return `<tr>
-        <td>${p.escola || ''}</td><td>${p.anoSerie || ''}</td><td>${p.turma || ''}</td><td>${p.professor || ''}</td><td>${p.disciplina || ''}</td>
-        <td>${p.descritor || ''}</td><td>${p.dataInicio || ''} até ${p.dataFim || ''}</td>
-        <td><button class="btn" onclick="editarPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-del" onclick="excluirPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button></td>
-      </tr>`;
+      return `<tr><td>${p.escola || ''}</td><td>${p.anoSerie || ''}</td><td>${p.turma || ''}</td><td>${p.professor || ''}</td><td>${p.disciplina || ''}</td><td>${p.descritor || ''}</td><td>${p.dataInicio || ''} até ${p.dataFim || ''}</td><td><button class="btn" onclick="editarPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button> <button class="btn btn-del" onclick="excluirPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button></td></tr>`;
     }).join('');
   }
 
@@ -773,6 +696,7 @@
     document.getElementById('iDataInicio').value = p.dataInicio || '';
     document.getElementById('iDataFim').value = p.dataFim || '';
     document.getElementById('iDescricao').value = p.descricao || '';
+    atualizarContadorDescricao();
     window.scrollTo(0, 0);
   }
 
@@ -785,6 +709,16 @@
   function resetIntervencaoForm() {
     intervencaoForm.reset();
     document.getElementById('intervencaoId').value = "";
+    atualizarContadorDescricao();
+  }
+
+  function atualizarContadorDescricao() {
+    const textarea = document.getElementById('iDescricao');
+    const contador = document.getElementById('caracteresRestantes');
+    if (textarea && contador) {
+      const restantes = 1000 - textarea.value.length;
+      contador.textContent = restantes >= 0 ? restantes : 0;
+    }
   }
 
   // ========== NAVEGAÇÃO ==========
@@ -809,6 +743,9 @@
   document.getElementById('descritorEscola').addEventListener('change', carregarDescritor);
   document.getElementById('descritorAno').addEventListener('change', carregarDescritor);
   document.getElementById('descritorTurma').addEventListener('change', carregarDescritor);
+
+  const descricaoTextarea = document.getElementById('iDescricao');
+  if (descricaoTextarea) descricaoTextarea.addEventListener('input', atualizarContadorDescricao);
 
   initDropdowns();
   loadCRUD();
