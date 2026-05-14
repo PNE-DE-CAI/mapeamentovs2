@@ -87,7 +87,7 @@
     <button class="tab-btn" data-tab="intervencao"><i class="fas fa-calendar-check"></i> Plano de Intervenção (Dia D)</button>
   </div>
 
-  <!-- DASHBOARD (mantido igual) -->
+  <!-- DASHBOARD -->
   <div id="dashboard" class="tab-content active">
     <div class="info-box">
       <i class="fas fa-info-circle"></i> <strong>Referência de equivalência SEE-SP (3 níveis):</strong>
@@ -132,7 +132,7 @@
     <div class="card">
       <h3><i class="fas fa-table-list"></i> Detalhamento Individual e Farol</h3>
       <div style="overflow-x: auto;">
-        <tr>
+        <table>
           <thead><tr><th>Escola / Turma</th><th>Estudante</th><th>Equiv. LP</th><th>Status ADD LP</th><th>Farol LP</th><th>Equiv. MT</th><th>Status ADD MT</th><th>Farol MT</th><th>PP LP%</th><th>PP MT%</th></tr></thead>
           <tbody id="dashTableBody"></tbody>
         </table>
@@ -140,9 +140,8 @@
     </div>
   </div>
 
-  <!-- META-ANÁLISE (CRUD + DESCRITOR + INSERÇÃO EM LOTE) -->
+  <!-- META-ANÁLISE -->
   <div id="meta" class="tab-content">
-    <!-- Formulário de cadastro de estudante -->
     <div class="card">
       <h3 id="formTitle"><i class="fas fa-plus-circle"></i> Cadastro / Edição de Estudante</h3>
       <form id="studentForm" class="form-grid">
@@ -150,7 +149,7 @@
         <select id="sEscola" required><option value="">Selecione a Escola</option></select>
         <select id="sAno" required><option value="">Ano/Série</option></select>
         <select id="sTurma" required><option value="">Turma</option></select>
-        <input type="text" id="sProfessor" placeholder="Nome do Professor" required>
+        <input type="text" id="sProfessor" placeholder="Professor" required>
         <input type="text" id="sNome" placeholder="Nome do Estudante" required>
         <input type="text" id="sAddLPeq" placeholder="Equivalência LP (ex: 1º ano)">
         <select id="sAddLPstatus" required><option value="">Selecione o status LP</option><option>Abaixo do Básico</option><option>Básico</option><option>Proficiente</option></select>
@@ -158,7 +157,7 @@
         <select id="sAddMTstatus" required><option value="">Selecione o status MT</option><option>Abaixo do Básico</option><option>Básico</option><option>Proficiente</option></select>
         <input type="number" id="sPPLP" min="0" max="100" step="0.1" placeholder="Prova Paulista LP (%)">
         <input type="number" id="sPPMT" min="0" max="100" step="0.1" placeholder="Prova Paulista MT (%)">
-        <textarea id="sObs" placeholder="Observações (estratégias, intervenções)" rows="2"></textarea>
+        <textarea id="sObs" placeholder="Observações" rows="2"></textarea>
         <div style="grid-column: 1/-1; display: flex; gap: 12px; flex-wrap: wrap;">
           <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Registro</button>
           <button type="button" class="btn" style="background:#64748b" onclick="resetForm()"><i class="fas fa-eraser"></i> Limpar</button>
@@ -166,13 +165,12 @@
       </form>
     </div>
 
-    <!-- Inserção em lote -->
     <div class="card">
       <h3><i class="fas fa-cloud-upload-alt"></i> Inserção em Lote (CSV via texto)</h3>
       <div style="margin-bottom: 1rem;">
-        <label>Cole ou digite os dados no formato CSV (sem cabeçalho):<br>
+        <label>Cole os dados no formato CSV (sem cabeçalho):<br>
         <small>Formato: escola,ano,turma,professor,nome,eqLP,statusLP,eqMT,statusMT,ppLP,ppMT,obs</small><br>
-        <small>statusLP/statusMT devem ser exatamente: "Abaixo do Básico", "Básico" ou "Proficiente"</small>
+        <small>statusLP/statusMT: "Abaixo do Básico", "Básico" ou "Proficiente"</small>
         </label>
         <textarea id="bulkData" rows="6" placeholder="JARDIM DAS ROSAS,6° Ano,A,Miro Carvalho,ALYCE VITORIA,,Abaixo do Básico,,Básico,45,30,&#10;AFONSO MORENO,1ª Série,B,Prof. Souza,Ana Costa,,Proficiente,,Proficiente,85,90,"></textarea>
       </div>
@@ -183,7 +181,6 @@
       <div id="loteFeedback" style="margin-top: 10px; font-size: 0.8rem; color: #2c5f8a;"></div>
     </div>
 
-    <!-- Descritor / Habilidade de menor acerto -->
     <div class="card">
       <h3><i class="fas fa-chalkboard-user"></i> Descritor / Habilidade com menor índice de acerto (Prova Paulista 1° Bim)</h3>
       <div class="form-grid" style="margin-top: 12px;">
@@ -200,7 +197,6 @@
       </div>
     </div>
 
-    <!-- Filtros para o Boletim -->
     <div class="card">
       <h3><i class="fas fa-print"></i> Gerar Boletim da Turma</h3>
       <div class="form-grid">
@@ -213,7 +209,7 @@
 
     <div class="card">
       <h3><i class="fas fa-database"></i> Registros</h3>
-      <div style="overflow-x: auto;"><table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Estudante</th><th>ADD LP</th><th>ADD MT</th><th>PP LP%</th><th>PP MT%</th><th>Ações</th></tr></thead><tbody id="crudTableBody"></tbody></table></div>
+      <div style="overflow-x: auto;"></table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Estudante</th><th>ADD LP</th><th>ADD MT</th><th>PP LP%</th><th>PP MT%</th><th>Ações</th></tr></thead><tbody id="crudTableBody"></tbody></div>
     </div>
   </div>
 
@@ -236,7 +232,7 @@
           <div style="display: flex; gap: 10px;"><input type="date" id="iDataInicio" required style="flex:1"> <span>até</span> <input type="date" id="iDataFim" required style="flex:1"></div>
         </div>
         <div style="grid-column: 1/-1;">
-          <label>Descritivo do seu Plano de intervenção dia D (máx. 1000 caracteres):</label>
+          <label>Descritivo do Plano (máx. 1000 caracteres):</label>
           <textarea id="iDescricao" rows="4" maxlength="1000" placeholder="Descreva as estratégias, atividades, recursos..." required></textarea>
           <div class="char-counter"><span id="caracteresRestantes">1000</span> caracteres restantes</div>
         </div>
@@ -246,18 +242,13 @@
         </div>
       </form>
     </div>
-
     <div class="card">
       <h3><i class="fas fa-list-alt"></i> Planos de Intervenção Cadastrados</h3>
-      <div style="overflow-x: auto;">
-        <table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Disciplina</th><th>Descritor</th><th>Período</th><th>Ações</th></tr></thead>
-        <tbody id="intervencaoTableBody"></tbody>
-      </table>
-      </div>
+      <div style="overflow-x: auto;"><table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Disciplina</th><th>Descritor</th><th>Período</th><th>Ações</th></tr></thead><tbody id="intervencaoTableBody"></tbody></div>
     </div>
   </div>
 
-  <footer><i class="fas fa-university"></i> URE-CAIEIRAS | Sistema de Observação de Melhora Educacional - Dados comparativos ADD x Prova Paulista 1° Bim</footer>
+  <footer><i class="fas fa-university"></i> URE-CAIEIRAS | Sistema de Observação de Melhora Educacional - ADD x Prova Paulista 1° Bim</footer>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -337,17 +328,20 @@
     return { cor: 'f-amarelo', texto: 'Estagnou' };
   }
 
+  // Gráficos globais
   let chartStatusLP, chartStatusMT, chartMediaLP, chartMediaMT;
 
   async function loadDashboard() {
     const esc = document.getElementById('filterEscola').value;
     const ano = document.getElementById('filterAno').value;
     const turma = document.getElementById('filterTurma').value;
+    console.log("Filtros:", esc, ano, turma);
     let ref = db.collection('ure_caieiras');
     if(esc) ref = ref.where('escola', '==', esc);
     if(ano) ref = ref.where('anoSerie', '==', ano);
     if(turma) ref = ref.where('turma', '==', turma);
     const snap = await ref.get();
+    console.log("Documentos:", snap.size);
     const data = [];
     let abaixoCount = 0, melhoraTotal=0, estagTotal=0, pioraTotal=0, total=snap.size;
     snap.forEach(doc => {
@@ -381,14 +375,21 @@
       </tr>
     `).join('');
 
+    // Contagem status
     const statusCountLP = { "Abaixo do Básico":0, "Básico":0, "Proficiente":0 };
     const statusCountMT = { "Abaixo do Básico":0, "Básico":0, "Proficiente":0 };
     data.forEach(d => {
       if(d.addLPstatus && statusCountLP[d.addLPstatus] !== undefined) statusCountLP[d.addLPstatus]++;
       if(d.addMTstatus && statusCountMT[d.addMTstatus] !== undefined) statusCountMT[d.addMTstatus]++;
     });
-    if(chartStatusLP) chartStatusLP.destroy();
-    if(chartStatusMT) chartStatusMT.destroy();
+
+    // Destruir gráficos antigos
+    if (chartStatusLP) chartStatusLP.destroy();
+    if (chartStatusMT) chartStatusMT.destroy();
+    if (chartMediaLP) chartMediaLP.destroy();
+    if (chartMediaMT) chartMediaMT.destroy();
+
+    // Criar novos gráficos
     chartStatusLP = new Chart(document.getElementById('chartStatusLP'), {
       type: 'doughnut',
       data: { labels: Object.keys(statusCountLP), datasets: [{ data: Object.values(statusCountLP), backgroundColor: ['#ef4444','#eab308','#22c55e'] }] }
@@ -400,8 +401,6 @@
 
     const mediaLP = data.reduce((acc,d)=>acc+(parseFloat(d.ppLP)||0),0)/(data.length||1);
     const mediaMT = data.reduce((acc,d)=>acc+(parseFloat(d.ppMT)||0),0)/(data.length||1);
-    if(chartMediaLP) chartMediaLP.destroy();
-    if(chartMediaMT) chartMediaMT.destroy();
     chartMediaLP = new Chart(document.getElementById('chartMediaLP'), {
       type: 'bar',
       data: { labels: ['LP'], datasets: [{ label: '% Acertos', data: [mediaLP], backgroundColor: '#1a56db' }] },
@@ -413,6 +412,7 @@
       options: { scales: { y: { max: 100, title: { display: true, text: 'Percentual (%)' } } } }
     });
 
+    // Listas de melhoria
     const melhoraLP = data.filter(d => d.farolLP.texto === 'Melhora').map(d => d.nome || '?');
     const melhoraMT = data.filter(d => d.farolMT.texto === 'Melhora').map(d => d.nome || '?');
     const melhoraAmbas = data.filter(d => d.farolLP.texto === 'Melhora' && d.farolMT.texto === 'Melhora').map(d => d.nome || '?');
@@ -441,11 +441,11 @@
       obs: document.getElementById('sObs').value,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    if(!payload.addLPstatus || !payload.addMTstatus) { showToast("Selecione os status de ADD (LP e MT) obrigatoriamente."); return; }
+    if(!payload.addLPstatus || !payload.addMTstatus) { showToast("Selecione os status de ADD."); return; }
     try {
       if(docId) await db.collection('ure_caieiras').doc(docId).update(payload);
       else await db.collection('ure_caieiras').add(payload);
-      showToast("✅ Registro salvo com sucesso!");
+      showToast("✅ Salvo!");
       resetForm();
       loadCRUD();
       loadDashboard();
@@ -459,7 +459,14 @@
         const d = doc.data();
         const statusLPClass = `bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
         const statusMTClass = `bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
-        return `<tr><td>${d.escola || ''}</td><td>${d.anoSerie || ''}</td><td>${d.turma || ''}</td><td>${d.professor || ''}</td><td>${d.nome || ''}</td><td class="badge ${statusLPClass}">${d.addLPstatus || '❓ Não informado'}</td><td class="badge ${statusMTClass}">${d.addMTstatus || '❓ Não informado'}</td><td>${d.ppLP || ''}%</td><td>${d.ppMT || ''}%</td><td><button class="btn" onclick="editDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button> <button class="btn btn-del" onclick="delDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button></td></tr>`;
+        return `<tr>
+          <td>${d.escola || ''}</td><td>${d.anoSerie || ''}</td><td>${d.turma || ''}</td><td>${d.professor || ''}</td>
+          <td>${d.nome || ''}</td><td class="badge ${statusLPClass}">${d.addLPstatus || '❓'}</td>
+          <td class="badge ${statusMTClass}">${d.addMTstatus || '❓'}</td>
+          <td>${d.ppLP || ''}%</td><td>${d.ppMT || ''}%</td>
+          <td><button class="btn" onclick="editDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-del" onclick="delDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button></td>
+        </tr>`;
       }).join('');
     });
   }
@@ -480,7 +487,7 @@
     document.getElementById('sPPLP').value = d.ppLP || '';
     document.getElementById('sPPMT').value = d.ppMT || '';
     document.getElementById('sObs').value = d.obs || '';
-    document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Editando Registro';
+    document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Editando';
     window.scrollTo(0,0);
   }
 
@@ -498,7 +505,7 @@
 
   async function inserirEmLote() {
     const raw = document.getElementById('bulkData').value;
-    if(!raw.trim()) { showToast("Cole os dados no campo de texto."); return; }
+    if(!raw.trim()) { showToast("Cole os dados."); return; }
     const lines = raw.split(/\r?\n/).filter(l => l.trim() !== "");
     let successCount = 0, errorCount = 0;
     for(let i=0; i<lines.length; i++) {
@@ -513,14 +520,14 @@
       } catch(e) { errorCount++; }
     }
     document.getElementById('loteFeedback').innerHTML = `✅ ${successCount} inseridos, ❌ ${errorCount} com erro.`;
-    showToast(`${successCount} registros inseridos em lote.`);
+    showToast(`${successCount} inseridos.`);
     loadCRUD();
     loadDashboard();
     if(successCount>0) document.getElementById('bulkData').value = "";
   }
   function limparCampoLote() { document.getElementById('bulkData').value = ""; document.getElementById('loteFeedback').innerHTML = ""; }
 
-  // ========== FUNÇÕES DESCRITOR ==========
+  // ========== DESCRITOR ==========
   async function carregarDescritor() {
     const escola = document.getElementById('descritorEscola').value;
     const ano = document.getElementById('descritorAno').value;
@@ -540,7 +547,7 @@
     if(!escola || !ano || !turma) { showToast("Selecione escola, ano e turma."); return; }
     const filterKey = `${escola}|${ano}|${turma}`;
     await db.collection('descritores_prova_paulista').doc(filterKey).set({ texto, escola, ano, turma, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    showToast("Descritor salvo/atualizado!");
+    showToast("Descritor salvo!");
     recarregarListaDescritores();
   }
 
@@ -596,7 +603,7 @@
     const esc = document.getElementById('boletimEscola').value;
     const ano = document.getElementById('boletimAno').value;
     const turma = document.getElementById('boletimTurma').value;
-    if (!esc || !ano || !turma) { showToast("Selecione uma escola, ano e turma específicos."); return; }
+    if (!esc || !ano || !turma) { showToast("Selecione escola, ano e turma."); return; }
     await carregarDescritorBoletim();
     let ref = db.collection('ure_caieiras');
     ref = ref.where('escola', '==', esc).where('anoSerie', '==', ano).where('turma', '==', turma);
@@ -620,19 +627,20 @@
     win.document.write(`
       <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Boletim - ${esc} - ${ano} - Turma ${turma}</title>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-      <style>body{font-family:'Inter',sans-serif;padding:2rem;}.header{text-align:center;border-bottom:2px solid #d32f2f;margin-bottom:1rem;}.info,.kpi-grid{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;}.kpi-card{background:#f8fafc;border-radius:20px;padding:1rem;text-align:center;flex:1;}table{width:100%;border-collapse:collapse;}th{background:#0a2f6c;color:white;padding:0.5rem;}td{padding:0.5rem;border-bottom:1px solid #ccc;}.badge{padding:0.2rem 0.5rem;border-radius:20px;color:white;display:inline-block;}.bg-abaixodobásico{background:#ef4444;}.bg-básico{background:#eab308;color:#1f2937;}.bg-proficiente{background:#22c55e;}.farol{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;}.f-verde{background:#22c55e;}.f-amarelo{background:#eab308;}.f-vermelho{background:#ef4444;}</style>
-      </head><body><div class="header"><h1>URE-CAIEIRAS - Boletim de Acompanhamento</h1><p>ADD vs Prova Paulista (1º Bimestre)</p></div>
-      <div class="info"><div><strong>Escola:</strong> ${esc}</div><div><strong>Ano/Série:</strong> ${ano}</div><div><strong>Turma:</strong> ${turma}</div><div><strong>Data:</strong> ${new Date().toLocaleDateString()}</div></div>
-      <div class="kpi-grid"><div class="kpi-card">Total Alunos: ${total}</div><div class="kpi-card">Abaixo (ADD): ${abaixoCount} (${Math.round(abaixoCount/total*100)||0}%)</div><div class="kpi-card">Farol: 🟢${melhora} 🟡${estag} 🔴${piora}</div><div class="kpi-card">Perfil: ${perfil}</div></div>
-      <div style="background:#fef9e3;padding:0.8rem;border-radius:16px;"><strong>📉 Descritor de menor acerto:</strong><br>${descritor}</div>
-      <h3>Detalhamento por Estudante</h3><table><thead><tr><th>Estudante</th><th>ADD LP</th><th>Farol LP</th><th>PP LP%</th><th>ADD MT</th><th>Farol MT</th><th>PP MT%</th></tr></thead><tbody>
-        ${data.map(d => `<tr><td>${d.nome||'--'}</td><td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td><td><span class="farol ${d.farolLP.cor}"></span>${d.farolLP.texto}</td><td>${d.ppLP??'-'}%</td><td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td><td><span class="farol ${d.farolMT.cor}"></span>${d.farolMT.texto}</td><td>${d.ppMT??'-'}%</td></tr>`).join('')}
-      </tbody></table><div class="footer">Sistema URE-CAIEIRAS - ADD vs Prova Paulista 1º Bimestre</div></body></html>
+      <style>body{font-family:'Inter',sans-serif;padding:2rem;}.header{text-align:center;border-bottom:2px solid #d32f2f;}.kpi-grid{display:flex;flex-wrap:wrap;gap:1rem;margin:1rem 0;}.kpi-card{background:#f8fafc;border-radius:20px;padding:1rem;text-align:center;flex:1;}table{width:100%;border-collapse:collapse;}th{background:#0a2f6c;color:white;padding:0.5rem;}td{padding:0.5rem;border-bottom:1px solid #ccc;}.badge{padding:0.2rem 0.5rem;border-radius:20px;color:white;display:inline-block;}.bg-abaixodobásico{background:#ef4444;}.bg-básico{background:#eab308;color:#1f2937;}.bg-proficiente{background:#22c55e;}.farol{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;}.f-verde{background:#22c55e;}.f-amarelo{background:#eab308;}.f-vermelho{background:#ef4444;}</style>
+      </head><body><div class="header"><h1>URE-CAIEIRAS - Boletim</h1><p>ADD vs Prova Paulista (1º Bim)</p></div>
+      <div><strong>Escola:</strong> ${esc} | <strong>Ano:</strong> ${ano} | <strong>Turma:</strong> ${turma} | <strong>Data:</strong> ${new Date().toLocaleDateString()}</div>
+      <div class="kpi-grid"><div class="kpi-card">Total: ${total}</div><div class="kpi-card">Abaixo ADD: ${abaixoCount} (${Math.round(abaixoCount/total*100)||0}%)</div><div class="kpi-card">Farol: 🟢${melhora} 🟡${estag} 🔴${piora}</div><div class="kpi-card">Perfil: ${perfil}</div></div>
+      <div style="background:#fef9e3;padding:0.8rem;"><strong>📉 Descritor menor acerto:</strong> ${descritor}</div>
+      <h3>Detalhamento</h3>
+      <table><thead><tr><th>Estudante</th><th>ADD LP</th><th>Farol LP</th><th>PP LP%</th><th>ADD MT</th><th>Farol MT</th><th>PP MT%</th></tr></thead><tbody>
+        ${data.map(d => `<tr><td>${d.nome||'--'}</td><td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td><td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td><td>${d.ppLP??'-'}%</td><td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td><td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td><td>${d.ppMT??'-'}%</td></tr>`).join('')}
+      </tbody></table><footer>URE-CAIEIRAS - ADD vs Prova Paulista 1º Bim</footer></body></html>
     `);
     win.document.close();
   }
 
-  // ========== CRUD PLANO DE INTERVENÇÃO ==========
+  // ========== PLANO DE INTERVENÇÃO ==========
   const intervencaoForm = document.getElementById('intervencaoForm');
   intervencaoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -651,22 +659,11 @@
       descricao: document.getElementById('iDescricao').value,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    if (!dados.escola || !dados.anoSerie || !dados.turma || !dados.professor || !dados.disciplina || !dados.descritor || !dados.dataInicio || !dados.dataFim || !dados.descricao) {
-      showToast("Preencha todos os campos obrigatórios.");
-      return;
-    }
-    if (new Date(dados.dataInicio) > new Date(dados.dataFim)) {
-      showToast("Data de início não pode ser maior que data de fim.");
-      return;
-    }
+    if (new Date(dados.dataInicio) > new Date(dados.dataFim)) { showToast("Data de início > data de fim."); return; }
     try {
-      if (id) {
-        await db.collection('planos_intervencao').doc(id).update(dados);
-        showToast("Plano atualizado com sucesso!");
-      } else {
-        await db.collection('planos_intervencao').add(dados);
-        showToast("Plano salvo com sucesso!");
-      }
+      if (id) await db.collection('planos_intervencao').doc(id).update(dados);
+      else await db.collection('planos_intervencao').add(dados);
+      showToast(id ? "Plano atualizado!" : "Plano salvo!");
       resetIntervencaoForm();
       carregarPlanos();
     } catch (err) { showToast("Erro: " + err.message); }
@@ -677,7 +674,12 @@
     const tbody = document.getElementById('intervencaoTableBody');
     tbody.innerHTML = snap.docs.map(doc => {
       const p = doc.data();
-      return `<tr><td>${p.escola || ''}</td><td>${p.anoSerie || ''}</td><td>${p.turma || ''}</td><td>${p.professor || ''}</td><td>${p.disciplina || ''}</td><td>${p.descritor || ''}</td><td>${p.dataInicio || ''} até ${p.dataFim || ''}</td><td><button class="btn" onclick="editarPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button> <button class="btn btn-del" onclick="excluirPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button></td></tr>`;
+      return `<tr>
+        <td>${p.escola || ''}</td><td>${p.anoSerie || ''}</td><td>${p.turma || ''}</td><td>${p.professor || ''}</td>
+        <td>${p.disciplina || ''}</td><td>${p.descritor || ''}</td><td>${p.dataInicio || ''} até ${p.dataFim || ''}</td>
+        <td><button class="btn" onclick="editarPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-del" onclick="excluirPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button></td>
+      </tr>`;
     }).join('');
   }
 
@@ -696,29 +698,26 @@
     document.getElementById('iDataInicio').value = p.dataInicio || '';
     document.getElementById('iDataFim').value = p.dataFim || '';
     document.getElementById('iDescricao').value = p.descricao || '';
-    atualizarContadorDescricao();
-    window.scrollTo(0, 0);
+    atualizarContador();
+    window.scrollTo(0,0);
   }
 
   function excluirPlano(id) {
-    if (confirm("Excluir este plano de intervenção?")) {
-      db.collection('planos_intervencao').doc(id).delete().then(() => { showToast("Plano excluído!"); carregarPlanos(); });
+    if(confirm("Excluir este plano?")) {
+      db.collection('planos_intervencao').doc(id).delete().then(() => { showToast("Excluído!"); carregarPlanos(); });
     }
   }
 
   function resetIntervencaoForm() {
     intervencaoForm.reset();
     document.getElementById('intervencaoId').value = "";
-    atualizarContadorDescricao();
+    atualizarContador();
   }
 
-  function atualizarContadorDescricao() {
+  function atualizarContador() {
     const textarea = document.getElementById('iDescricao');
     const contador = document.getElementById('caracteresRestantes');
-    if (textarea && contador) {
-      const restantes = 1000 - textarea.value.length;
-      contador.textContent = restantes >= 0 ? restantes : 0;
-    }
+    if(textarea && contador) contador.textContent = 1000 - textarea.value.length;
   }
 
   // ========== NAVEGAÇÃO ==========
@@ -727,9 +726,9 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
-    if (tabId === 'dashboard') loadDashboard();
-    else if (tabId === 'meta') { loadCRUD(); recarregarListaDescritores(); }
-    else if (tabId === 'intervencao') carregarPlanos();
+    if(tabId === 'dashboard') loadDashboard();
+    else if(tabId === 'meta') { loadCRUD(); recarregarListaDescritores(); }
+    else if(tabId === 'intervencao') carregarPlanos();
   }
 
   function showToast(msg) {
@@ -744,8 +743,8 @@
   document.getElementById('descritorAno').addEventListener('change', carregarDescritor);
   document.getElementById('descritorTurma').addEventListener('change', carregarDescritor);
 
-  const descricaoTextarea = document.getElementById('iDescricao');
-  if (descricaoTextarea) descricaoTextarea.addEventListener('input', atualizarContadorDescricao);
+  const descTextarea = document.getElementById('iDescricao');
+  if(descTextarea) descTextarea.addEventListener('input', atualizarContador);
 
   initDropdowns();
   loadCRUD();
