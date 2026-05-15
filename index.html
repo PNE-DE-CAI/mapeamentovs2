@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>URE-CAIEIRAS | Observação de Melhora Educacional</title>
+  <!-- Firebase e Chart.js -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -88,7 +89,7 @@
     <button class="tab-btn" data-tab="intervencao"><i class="fas fa-calendar-check"></i> Plano de Intervenção (Dia D)</button>
   </div>
 
-  <!-- DASHBOARD (mantido igual, omitido por brevidade, mas completo) -->
+  <!-- DASHBOARD -->
   <div id="dashboard" class="tab-content active">
     <div class="info-box">
       <i class="fas fa-info-circle"></i> <strong>Referência de equivalência SEE-SP (3 níveis):</strong>
@@ -111,6 +112,7 @@
       <div class="kpi"><h3><i class="fas fa-chart-simple"></i> Farol Evolução</h3><p id="kpiFarol">-</p></div>
       <div class="kpi"><h3><i class="fas fa-school"></i> Perfil Turma</h3><p id="kpiPerfil">-</p></div>
     </div>
+    <br>
     <div class="grid-3">
       <div class="card"><h3><i class="fas fa-chart-pie"></i> Distribuição Status ADD (LP)</h3><canvas id="chartStatusLP"></canvas></div>
       <div class="card"><h3><i class="fas fa-chart-pie"></i> Distribuição Status ADD (MT)</h3><canvas id="chartStatusMT"></canvas></div>
@@ -127,13 +129,19 @@
     </div>
     <div class="card">
       <h3><i class="fas fa-table-list"></i> Detalhamento Individual e Farol</h3>
-      <div style="overflow-x: auto;"><table><thead><tr><th>Escola / Turma</th><th>Estudante</th><th>Equiv. LP</th><th>Status ADD LP</th><th>Farol LP</th><th>Equiv. MT</th><th>Status ADD MT</th><th>Farol MT</th><th>PP LP%</th><th>PP MT%</th></td></thead><tbody id="dashTableBody"></tbody></div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead><tr><th>Escola / Turma</th><th>Estudante</th><th>Equiv. LP</th><th>Status ADD LP</th><th>Farol LP</th><th>Equiv. MT</th><th>Status ADD MT</th><th>Farol MT</th><th>PP LP%</th><th>PP MT%</th></tr></thead>
+          <tbody id="dashTableBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- META-ANÁLISE COM FILTROS E CRUD CORRIGIDO -->
+  <!-- META-ANÁLISE -->
   <div id="meta" class="tab-content">
-    <div class="card"><h3 id="formTitle"><i class="fas fa-plus-circle"></i> Cadastro / Edição de Estudante</h3>
+    <div class="card">
+      <h3 id="formTitle"><i class="fas fa-plus-circle"></i> Cadastro / Edição de Estudante</h3>
       <form id="studentForm" class="form-grid">
         <input type="hidden" id="docId">
         <select id="sEscola" required><option value="">Selecione a Escola</option></select>
@@ -155,34 +163,75 @@
       </form>
     </div>
 
-    <div class="card"><h3><i class="fas fa-cloud-upload-alt"></i> Inserção em Lote (CSV via texto)</h3>
-      <div><label>Cole os dados no formato CSV (sem cabeçalho):<br><small>Formato: escola,ano,turma,professor,nome,eqLP,statusLP,eqMT,statusMT,ppLP,ppMT,obs</small><br><small>statusLP/statusMT: "Abaixo do Básico", "Básico" ou "Proficiente"</small></label>
-        <textarea id="bulkData" rows="6" placeholder="JARDIM DAS ROSAS,6° Ano,A,Miro Carvalho,ALYCE VITORIA,,Abaixo do Básico,,Básico,45,30,"></textarea></div>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap;"><button class="btn" onclick="inserirEmLote()"><i class="fas fa-database"></i> Inserir em Lote</button><button class="btn" style="background:#64748b;" onclick="limparCampoLote()"><i class="fas fa-trash-alt"></i> Limpar Campo</button></div>
+    <div class="card">
+      <h3><i class="fas fa-cloud-upload-alt"></i> Inserção em Lote (CSV via texto)</h3>
+      <div style="margin-bottom: 1rem;">
+        <label>Cole os dados no formato CSV (sem cabeçalho):<br>
+        <small>Formato: escola,ano,turma,professor,nome,eqLP,statusLP,eqMT,statusMT,ppLP,ppMT,obs</small><br>
+        <small>statusLP/statusMT: "Abaixo do Básico", "Básico" ou "Proficiente"</small>
+        </label>
+        <textarea id="bulkData" rows="6" placeholder="JARDIM DAS ROSAS,6° Ano,A,Miro Carvalho,ALYCE VITORIA,,Abaixo do Básico,,Básico,45,30,&#10;AFONSO MORENO,1ª Série,B,Prof. Souza,Ana Costa,,Proficiente,,Proficiente,85,90,"></textarea>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn" onclick="inserirEmLote()"><i class="fas fa-database"></i> Inserir em Lote</button>
+        <button class="btn" style="background:#64748b;" onclick="limparCampoLote()"><i class="fas fa-trash-alt"></i> Limpar Campo</button>
+      </div>
       <div id="loteFeedback" style="margin-top: 10px; font-size: 0.8rem; color: #2c5f8a;"></div>
     </div>
 
-    <div class="card"><h3><i class="fas fa-chalkboard-user"></i> Descritor / Habilidade com menor índice de acerto (Prova Paulista 1° Bim)</h3>
-      <div class="form-grid"><select id="descritorEscola" onchange="carregarDescritor()"><option value="">Todas as Escolas</option></select><select id="descritorAno" onchange="carregarDescritor()"><option value="">Todos os Anos</option></select><select id="descritorTurma" onchange="carregarDescritor()"><option value="">Todas as Turmas</option></select>
-      <textarea id="descritorTexto" rows="2" placeholder="Ex: D13 - Interpretar gráficos; Habilidade EF07MA33 - baixo desempenho"></textarea><div><button class="btn" onclick="salvarDescritor()"><i class="fas fa-save"></i> Salvar / Atualizar Descritor</button></div></div>
-      <div style="margin-top: 1rem;"><label><strong><i class="fas fa-list"></i> Descritores já cadastrados (clique para editar):</strong></label><select id="listaDescritores" onchange="carregarDescritorPorSelecao()"><option value="">-- Selecione um descritor para editar --</option></select><button class="btn" style="background:#2c5f8a;" onclick="recarregarListaDescritores()"><i class="fas fa-sync-alt"></i> Recarregar lista</button></div>
+    <div class="card">
+      <h3><i class="fas fa-chalkboard-user"></i> Descritor / Habilidade com menor índice de acerto (Prova Paulista 1° Bim)</h3>
+      <div class="form-grid" style="margin-top: 12px;">
+        <select id="descritorEscola" onchange="carregarDescritor()"><option value="">Todas as Escolas</option></select>
+        <select id="descritorAno" onchange="carregarDescritor()"><option value="">Todos os Anos</option></select>
+        <select id="descritorTurma" onchange="carregarDescritor()"><option value="">Todas as Turmas</option></select>
+        <textarea id="descritorTexto" rows="2" placeholder="Ex: D13 - Interpretar gráficos; Habilidade EF07MA33 - baixo desempenho"></textarea>
+        <div><button class="btn" onclick="salvarDescritor()"><i class="fas fa-save"></i> Salvar / Atualizar Descritor</button></div>
+      </div>
+      <div style="margin-top: 1rem;">
+        <label><strong><i class="fas fa-list"></i> Descritores já cadastrados (clique para editar):</strong></label>
+        <select id="listaDescritores" onchange="carregarDescritorPorSelecao()"><option value="">-- Selecione um descritor para editar --</option></select>
+        <button class="btn" style="background:#2c5f8a; margin-top: 8px;" onclick="recarregarListaDescritores()"><i class="fas fa-sync-alt"></i> Recarregar lista</button>
+      </div>
     </div>
 
-    <div class="card"><h3><i class="fas fa-print"></i> Gerar Boletim da Turma</h3>
-      <div class="form-grid"><select id="boletimEscola" onchange="carregarDescritorBoletim()"><option value="">Selecione a Escola</option></select><select id="boletimAno" onchange="carregarDescritorBoletim()"><option value="">Selecione o Ano/Série</option></select><select id="boletimTurma" onchange="carregarDescritorBoletim()"><option value="">Selecione a Turma</option></select><button class="btn" onclick="gerarBoletim()" style="background:#0f5c3e;"><i class="fas fa-print"></i> Gerar Boletim (Turma filtrada)</button></div>
+    <div class="card">
+      <h3><i class="fas fa-print"></i> Gerar Boletim da Turma</h3>
+      <div class="form-grid">
+        <select id="boletimEscola" onchange="carregarDescritorBoletim()"><option value="">Selecione a Escola</option></select>
+        <select id="boletimAno" onchange="carregarDescritorBoletim()"><option value="">Selecione o Ano/Série</option></select>
+        <select id="boletimTurma" onchange="carregarDescritorBoletim()"><option value="">Selecione a Turma</option></select>
+        <button class="btn" onclick="gerarBoletim()" style="background:#0f5c3e;"><i class="fas fa-print"></i> Gerar Boletim (Turma filtrada)</button>
+      </div>
     </div>
 
     <!-- FILTROS PARA TABELA DE REGISTROS -->
-    <div class="card"><h3><i class="fas fa-filter"></i> Filtrar Registros de Estudantes</h3>
-      <div class="filtro-card"><div class="form-grid"><select id="filtroRegistroEscola" onchange="filtrarRegistros()"><option value="">Todas as Escolas</option></select><select id="filtroRegistroAno" onchange="filtrarRegistros()"><option value="">Todos os Anos</option></select><select id="filtroRegistroTurma" onchange="filtrarRegistros()"><option value="">Todas as Turmas</option></select><button class="btn" onclick="limparFiltrosRegistros()" style="background:#64748b;"><i class="fas fa-eraser"></i> Limpar Filtros</button></div></div>
+    <div class="card">
+      <h3><i class="fas fa-filter"></i> Filtrar Registros de Estudantes</h3>
+      <div class="filtro-card">
+        <div class="form-grid">
+          <select id="filtroRegistroEscola" onchange="filtrarRegistros()"><option value="">Todas as Escolas</option></select>
+          <select id="filtroRegistroAno" onchange="filtrarRegistros()"><option value="">Todos os Anos</option></select>
+          <select id="filtroRegistroTurma" onchange="filtrarRegistros()"><option value="">Todas as Turmas</option></select>
+          <button class="btn" onclick="limparFiltrosRegistros()" style="background:#64748b;"><i class="fas fa-eraser"></i> Limpar Filtros</button>
+        </div>
+      </div>
       <h3><i class="fas fa-database"></i> Registros</h3>
-      <div style="overflow-x: auto;"><table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Estudante</th><th>ADD LP</th><th>ADD MT</th><th>PP LP%</th><th>PP MT%</th><th>Ações</th></tr></thead><tbody id="crudTableBody"></tbody></div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Estudante</th><th>ADD LP</th><th>ADD MT</th><th>PP LP%</th><th>PP MT%</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="crudTableBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- PLANO DE INTERVENÇÃO (com PDF) -->
+  <!-- PLANO DE INTERVENÇÃO DIA D -->
   <div id="intervencao" class="tab-content">
-    <div class="card"><h3><i class="fas fa-plus-circle"></i> Novo Plano de Intervenção</h3>
+    <div class="card">
+      <h3><i class="fas fa-plus-circle"></i> Novo Plano de Intervenção</h3>
       <form id="intervencaoForm" class="form-grid">
         <input type="hidden" id="intervencaoId">
         <select id="iEscola" required><option value="">Selecione a Escola</option></select>
@@ -193,16 +242,42 @@
         <input type="text" id="iDescritor" placeholder="Questão/Descritor de menor acerto" required>
         <input type="text" id="iAula" placeholder="Aula relacionada com o menor índice de acerto" required>
         <input type="text" id="iAprendizagem" placeholder="Aprendizagem essencial em foco dessa aula" required>
-        <div class="form-grid" style="grid-column:1/-1;"><label>Período previsto para execução (dia D):</label><div style="display: flex; gap:10px;"><input type="date" id="iDataInicio" required style="flex:1"> <span>até</span> <input type="date" id="iDataFim" required style="flex:1"></div></div>
-        <div style="grid-column:1/-1;"><label>Descritivo do Plano (máx. 1000 caracteres):</label><textarea id="iDescricao" rows="10" maxlength="1000" placeholder="1) Objetivo:..."></textarea><div class="char-counter"><span id="caracteresRestantes">1000</span> caracteres restantes</div><button type="button" class="btn model-btn" onclick="inserirModeloDescricao()"><i class="fas fa-file-alt"></i> Inserir Modelo</button></div>
-        <div style="grid-column:1/-1; display:flex; gap:12px;"><button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Plano</button><button type="button" class="btn" style="background:#64748b" onclick="resetIntervencaoForm()"><i class="fas fa-eraser"></i> Limpar</button></div>
+        <div class="form-grid" style="grid-column: 1/-1;">
+          <label>Período previsto para execução (dia D):</label>
+          <div style="display: flex; gap: 10px;"><input type="date" id="iDataInicio" required style="flex:1"> <span>até</span> <input type="date" id="iDataFim" required style="flex:1"></div>
+        </div>
+        <div style="grid-column: 1/-1;">
+          <label>Descritivo do Plano (máx. 1000 caracteres):</label>
+          <textarea id="iDescricao" rows="10" maxlength="1000" placeholder="1) Objetivo:..."></textarea>
+          <div class="char-counter"><span id="caracteresRestantes">1000</span> caracteres restantes</div>
+          <button type="button" class="btn model-btn" onclick="inserirModeloDescricao()"><i class="fas fa-file-alt"></i> Inserir Modelo</button>
+        </div>
+        <div style="grid-column: 1/-1; display: flex; gap: 12px;">
+          <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Plano</button>
+          <button type="button" class="btn" style="background:#64748b" onclick="resetIntervencaoForm()"><i class="fas fa-eraser"></i> Limpar</button>
+        </div>
       </form>
     </div>
 
-    <div class="card"><h3><i class="fas fa-filter"></i> Filtrar Planos de Intervenção</h3>
-      <div class="filtro-card"><div class="form-grid"><select id="filtroPlanoEscola" onchange="filtrarPlanos()"><option value="">Todas as Escolas</option></select><select id="filtroPlanoAno" onchange="filtrarPlanos()"><option value="">Todos os Anos</option></select><select id="filtroPlanoTurma" onchange="filtrarPlanos()"><option value="">Todas as Turmas</option></select><button class="btn" onclick="limparFiltrosPlanos()" style="background:#64748b;"><i class="fas fa-eraser"></i> Limpar Filtros</button></div></div>
+    <div class="card">
+      <h3><i class="fas fa-filter"></i> Filtrar Planos de Intervenção</h3>
+      <div class="filtro-card">
+        <div class="form-grid">
+          <select id="filtroPlanoEscola" onchange="filtrarPlanos()"><option value="">Todas as Escolas</option></select>
+          <select id="filtroPlanoAno" onchange="filtrarPlanos()"><option value="">Todos os Anos</option></select>
+          <select id="filtroPlanoTurma" onchange="filtrarPlanos()"><option value="">Todas as Turmas</option></select>
+          <button class="btn" onclick="limparFiltrosPlanos()" style="background:#64748b;"><i class="fas fa-eraser"></i> Limpar Filtros</button>
+        </div>
+      </div>
       <h3><i class="fas fa-list-alt"></i> Planos de Intervenção Cadastrados</h3>
-      <div style="overflow-x: auto;"><table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Disciplina</th><th>Descritor</th><th>Período</th><th>Ações</th></tr></thead><tbody id="intervencaoTableBody"></tbody></div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Disciplina</th><th>Descritor</th><th>Período</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="intervencaoTableBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -211,89 +286,659 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const firebaseConfig = { apiKey: "AIzaSyBrjM1C840QnWGQIrInvCAjnNBQuSVqy78", authDomain: "financeiroescola-587af.firebaseapp.com", projectId: "financeiroescola-587af", storageBucket: "financeiroescola-587af.firebasestorage.app", messagingSenderId: "55720778459", appId: "1:55720778459:web:0bdd1d9acdd2d4bf398afe" };
+  const firebaseConfig = {
+    apiKey: "AIzaSyBrjM1C840QnWGQIrInvCAjnNBQuSVqy78",
+    authDomain: "financeiroescola-587af.firebaseapp.com",
+    projectId: "financeiroescola-587af",
+    storageBucket: "financeiroescola-587af.firebasestorage.app",
+    messagingSenderId: "55720778459",
+    appId: "1:55720778459:web:0bdd1d9acdd2d4bf398afe"
+  };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  const escolasOficiais = [ "ADAIL JARBAS DUCLOS", "AFONSO MORENO", "ALADINO POLON", "ALBERTO GRAF CAPITAO", "ALBINO FIORE", "ALFRIED THEODOR WEISZFLOG", "ANA MARIA GARRIDO ORLANDIN PROFA", "APARECIDO ROBERTO TONELLOTTI PROFESSOR", "ARMANDO SESTINI", "ARTHUR WEINGRILL", "AZEVEDO SOARES", "BAIRRO DO ITAIM", "BAIRRO JUNDIAIZINHO", "BELEM DA SERRA", "BENEDITO APARECIDO TAVARES PROF", "BENEDITO FAGUNDES MARQUES", "BUENO DE AZEVEDO FILHO PROF", "CARLOS AUGUSTO DE PADUA FLEURY PROF", "CELESTINA VALENTE LENGENFELDER PROFA", "CHACARA CAMPONESA JARDIM VASSOURAS", "DOMINGOS CAMBIAGHI PROF", "DR. MARIO TOLEDO DE MORAES", "DR. NELSON MANZANARES", "ELCIO JOSE PEREIRA COTRIM PROF", "ELVIRA PARADA MANGA PROFA", "FRANCISCO GONCALVES VIEIRA PROF", "HERMELINA DE ALBUQUERQUE PASSARELLA PROFA", "IRACI SARTORI VIEIRA DA SILVA PROFA", "ISAIAS LUIZ MATIAZZO", "ISAURA DE MIRANDA BOTTO PROFA", "ISAURA VALENTINI HANSER PROFA", "IVONE DOS ANJOS DA SILVA CAMPOS PROFA", "JARDIM ALEGRIA II", "JARDIM DAS ROSAS", "JARDIM SAO FRANCISCO", "JARDIM SILVIA II", "JOAQUIM MARQUES DA SILVA SOBRINHO TTE", "JOCIMARA VIEIRA DA SILVA PROFA", "JOSE CARLOS DA SILVA JUNIOR", "JOSE DE BARROS MARTINS EDITOR", "JOSE PARADA PROFESSOR", "JOSE ROBERTO MELCHIOR DR", "KATIA MARIA TARIFA LEME TONELLI PROFA", "LENITA CORREA CAMARGO PROFA", "LUIZ ALEXANDRE DOS SANTOS VEREADOR", "LYDIA SCALET WALKER PROFA", "MARIA ZEZA GOMES DE OLIVEIRA", "NAIR HANNICKEL ROMARO", "NIDE ZAIM CARDOSO PROFA", "ODARICO OLIVEIRA NASCIMENTO PROF", "OLINDO DARTORA DR", "OTTO WEISZFLOG", "OZILDE ALBUQUERQUE PASSARELLA DR", "PARQUE CENTO E VINTE II", "PAULO DUARTE", "PEDRO GALRAO DO NASCIMENTO", "PEDRO LELIS DE SOUZA PREFEITO", "PEDRO PAULO DE AGUIAR", "PIETRO PETRI", "RITUCO MITANI PROFA", "ROGERIO LEVORIN PROF", "SUZANA DIAS", "ULYSSES SANCHES RAMIRES PROF", "VINCENZO LOBASSI", "WALTER RIBAS DE ANDRADE PROF EE", "WALTHER WEISZFLOG", "ZILTON BICUDO PROF" ];
+  // Listas oficiais
+  const escolasOficiais = [
+    "ADAIL JARBAS DUCLOS", "AFONSO MORENO", "ALADINO POLON", "ALBERTO GRAF CAPITAO",
+    "ALBINO FIORE", "ALFRIED THEODOR WEISZFLOG", "ANA MARIA GARRIDO ORLANDIN PROFA",
+    "APARECIDO ROBERTO TONELLOTTI PROFESSOR", "ARMANDO SESTINI", "ARTHUR WEINGRILL",
+    "AZEVEDO SOARES", "BAIRRO DO ITAIM", "BAIRRO JUNDIAIZINHO", "BELEM DA SERRA",
+    "BENEDITO APARECIDO TAVARES PROF", "BENEDITO FAGUNDES MARQUES", "BUENO DE AZEVEDO FILHO PROF",
+    "CARLOS AUGUSTO DE PADUA FLEURY PROF", "CELESTINA VALENTE LENGENFELDER PROFA",
+    "CHACARA CAMPONESA JARDIM VASSOURAS", "DOMINGOS CAMBIAGHI PROF", "DR. MARIO TOLEDO DE MORAES",
+    "DR. NELSON MANZANARES", "ELCIO JOSE PEREIRA COTRIM PROF", "ELVIRA PARADA MANGA PROFA",
+    "FRANCISCO GONCALVES VIEIRA PROF", "HERMELINA DE ALBUQUERQUE PASSARELLA PROFA",
+    "IRACI SARTORI VIEIRA DA SILVA PROFA", "ISAIAS LUIZ MATIAZZO", "ISAURA DE MIRANDA BOTTO PROFA",
+    "ISAURA VALENTINI HANSER PROFA", "IVONE DOS ANJOS DA SILVA CAMPOS PROFA", "JARDIM ALEGRIA II",
+    "JARDIM DAS ROSAS", "JARDIM SAO FRANCISCO", "JARDIM SILVIA II", "JOAQUIM MARQUES DA SILVA SOBRINHO TTE",
+    "JOCIMARA VIEIRA DA SILVA PROFA", "JOSE CARLOS DA SILVA JUNIOR", "JOSE DE BARROS MARTINS EDITOR",
+    "JOSE PARADA PROFESSOR", "JOSE ROBERTO MELCHIOR DR", "KATIA MARIA TARIFA LEME TONELLI PROFA",
+    "LENITA CORREA CAMARGO PROFA", "LUIZ ALEXANDRE DOS SANTOS VEREADOR", "LYDIA SCALET WALKER PROFA",
+    "MARIA ZEZA GOMES DE OLIVEIRA", "NAIR HANNICKEL ROMARO", "NIDE ZAIM CARDOSO PROFA",
+    "ODARICO OLIVEIRA NASCIMENTO PROF", "OLINDO DARTORA DR", "OTTO WEISZFLOG", "OZILDE ALBUQUERQUE PASSARELLA DR",
+    "PARQUE CENTO E VINTE II", "PAULO DUARTE", "PEDRO GALRAO DO NASCIMENTO", "PEDRO LELIS DE SOUZA PREFEITO",
+    "PEDRO PAULO DE AGUIAR", "PIETRO PETRI", "RITUCO MITANI PROFA", "ROGERIO LEVORIN PROF", "SUZANA DIAS",
+    "ULYSSES SANCHES RAMIRES PROF", "VINCENZO LOBASSI", "WALTER RIBAS DE ANDRADE PROF EE", "WALTHER WEISZFLOG",
+    "ZILTON BICUDO PROF"
+  ];
   const anosSeries = ["5° Ano","6° Ano","7° Ano","8° Ano","9° Ano","1ª Série","2ª Série","3ª Série"];
   const turmasLista = ["A","B","C","D","E","F","G","H"];
 
   function initDropdowns() {
-    const fill = (id, arr, addEmpty=true) => { let s=document.getElementById(id); if(!s) return; s.innerHTML = addEmpty ? '<option value="">Selecione</option>' : ''; arr.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`); };
-    fill('sEscola', escolasOficiais); fill('filterEscola', ['', ...escolasOficiais]); fill('sAno', anosSeries); fill('filterAno', ['', ...anosSeries]); fill('sTurma', turmasLista); fill('filterTurma', ['', ...turmasLista]); fill('descritorEscola', ['', ...escolasOficiais]); fill('descritorAno', ['', ...anosSeries]); fill('descritorTurma', ['', ...turmasLista]); fill('boletimEscola', escolasOficiais); fill('boletimAno', anosSeries); fill('boletimTurma', turmasLista); fill('iEscola', escolasOficiais); fill('iAno', anosSeries); fill('iTurma', turmasLista); fill('filtroRegistroEscola', ['', ...escolasOficiais]); fill('filtroRegistroAno', ['', ...anosSeries]); fill('filtroRegistroTurma', ['', ...turmasLista]); fill('filtroPlanoEscola', ['', ...escolasOficiais]); fill('filtroPlanoAno', ['', ...anosSeries]); fill('filtroPlanoTurma', ['', ...turmasLista]);
+    const fill = (id, arr, addEmpty=true) => {
+      const s = document.getElementById(id);
+      if(!s) return;
+      s.innerHTML = addEmpty ? '<option value="">Selecione</option>' : '';
+      arr.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`);
+    };
+    fill('sEscola', escolasOficiais);
+    fill('filterEscola', ['', ...escolasOficiais]);
+    fill('sAno', anosSeries);
+    fill('filterAno', ['', ...anosSeries]);
+    fill('sTurma', turmasLista);
+    fill('filterTurma', ['', ...turmasLista]);
+    fill('descritorEscola', ['', ...escolasOficiais]);
+    fill('descritorAno', ['', ...anosSeries]);
+    fill('descritorTurma', ['', ...turmasLista]);
+    fill('boletimEscola', escolasOficiais);
+    fill('boletimAno', anosSeries);
+    fill('boletimTurma', turmasLista);
+    fill('iEscola', escolasOficiais);
+    fill('iAno', anosSeries);
+    fill('iTurma', turmasLista);
+    fill('filtroRegistroEscola', ['', ...escolasOficiais]);
+    fill('filtroRegistroAno', ['', ...anosSeries]);
+    fill('filtroRegistroTurma', ['', ...turmasLista]);
+    fill('filtroPlanoEscola', ['', ...escolasOficiais]);
+    fill('filtroPlanoAno', ['', ...anosSeries]);
+    fill('filtroPlanoTurma', ['', ...turmasLista]);
   }
 
-  function getFarol(addStatus, ppPct) { if(!addStatus || ppPct===null || ppPct===undefined || ppPct==="") return { cor:'gray', texto:'S/D' }; ppPct=parseFloat(ppPct); const ordem=["Abaixo do Básico","Básico","Proficiente"]; let idxEsperado=ordem.indexOf(addStatus); if(idxEsperado===-1) idxEsperado=0; let idxReal=ppPct<35?0:ppPct<85?1:2; if(idxReal>idxEsperado) return { cor:'f-verde', texto:'Melhora' }; if(idxReal<idxEsperado) return { cor:'f-vermelho', texto:'Piora' }; return { cor:'f-amarelo', texto:'Estagnou' }; }
+  function getFarol(addStatus, ppPct) {
+    if(!addStatus || ppPct === null || ppPct === undefined || ppPct === "") return { cor: 'gray', texto: 'S/D' };
+    ppPct = parseFloat(ppPct);
+    const ordem = ["Abaixo do Básico", "Básico", "Proficiente"];
+    let idxEsperado = ordem.indexOf(addStatus);
+    if(idxEsperado === -1) idxEsperado = 0;
+    let idxReal = ppPct < 35 ? 0 : ppPct < 85 ? 1 : 2;
+    if(idxReal > idxEsperado) return { cor: 'f-verde', texto: 'Melhora' };
+    if(idxReal < idxEsperado) return { cor: 'f-vermelho', texto: 'Piora' };
+    return { cor: 'f-amarelo', texto: 'Estagnou' };
+  }
 
   let chartStatusLP, chartStatusMT, chartMediaLP, chartMediaMT;
-  async function loadDashboard() { /* mesmo código anterior, omitido para brevidade, mas presente no arquivo final */ 
-    const esc=document.getElementById('filterEscola').value, ano=document.getElementById('filterAno').value, turma=document.getElementById('filterTurma').value;
-    let ref=db.collection('ure_caieiras'); if(esc) ref=ref.where('escola','==',esc); if(ano) ref=ref.where('anoSerie','==',ano); if(turma) ref=ref.where('turma','==',turma);
-    const snap=await ref.get(); const data=[]; let abaixoCount=0,melhoraTotal=0,estagTotal=0,pioraTotal=0,total=snap.size;
-    snap.forEach(doc=>{ const d=doc.data(); const flp=getFarol(d.addLPstatus,d.ppLP), fmt=getFarol(d.addMTstatus,d.ppMT); d.farolLP=flp; d.farolMT=fmt; data.push(d); if(d.addLPstatus==="Abaixo do Básico"||d.addMTstatus==="Abaixo do Básico") abaixoCount++; if(flp.texto==='Melhora'||fmt.texto==='Melhora') melhoraTotal++; else if(flp.texto==='Piora'||fmt.texto==='Piora') pioraTotal++; else if(flp.texto!=='S/D') estagTotal++; });
-    const perfil=abaixoCount>(total*0.5)?"⚠️ Crítico (>50% abaixo)":"✅ Estável (<50% abaixo)";
-    document.getElementById('kpiTotal').innerText=total; document.getElementById('kpiAbaixo').innerHTML=`${abaixoCount} (${total?Math.round((abaixoCount/total)*100):0}%)`; document.getElementById('kpiFarol').innerHTML=`<span class="farol f-verde"></span>${melhoraTotal} <span class="farol f-amarelo"></span>${estagTotal} <span class="farol f-vermelho"></span>${pioraTotal}`; document.getElementById('kpiPerfil').innerHTML=perfil; document.getElementById('kpiPerfil').style.color=perfil.includes('Crítico')?'#ef4444':'#22c55e';
-    const tbody=document.getElementById('dashTableBody'); tbody.innerHTML=data.map(d=>`<tr><td>${d.escola}<br><small>${d.anoSerie} - ${d.turma}</small></td><td>${d.nome||'--'}</td><td>${d.addLPeq||'-'} <span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td><td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td><td>${d.addMTeq||'-'} <span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td><td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td><td>${d.ppLP??'-'}%</td><td>${d.ppMT??'-'}%</td></tr>`).join('');
-    const stLP={"Abaixo do Básico":0,"Básico":0,"Proficiente":0}, stMT={"Abaixo do Básico":0,"Básico":0,"Proficiente":0}; data.forEach(d=>{ if(d.addLPstatus&&stLP[d.addLPstatus]!==undefined) stLP[d.addLPstatus]++; if(d.addMTstatus&&stMT[d.addMTstatus]!==undefined) stMT[d.addMTstatus]++; });
-    if(chartStatusLP) chartStatusLP.destroy(); if(chartStatusMT) chartStatusMT.destroy(); if(chartMediaLP) chartMediaLP.destroy(); if(chartMediaMT) chartMediaMT.destroy();
-    chartStatusLP=new Chart(document.getElementById('chartStatusLP'),{type:'doughnut',data:{labels:Object.keys(stLP),datasets:[{data:Object.values(stLP),backgroundColor:['#ef4444','#eab308','#22c55e']}]}});
-    chartStatusMT=new Chart(document.getElementById('chartStatusMT'),{type:'doughnut',data:{labels:Object.keys(stMT),datasets:[{data:Object.values(stMT),backgroundColor:['#ef4444','#eab308','#22c55e']}]}});
-    const mediaLP=data.reduce((a,d)=>a+(parseFloat(d.ppLP)||0),0)/(data.length||1), mediaMT=data.reduce((a,d)=>a+(parseFloat(d.ppMT)||0),0)/(data.length||1);
-    chartMediaLP=new Chart(document.getElementById('chartMediaLP'),{type:'bar',data:{labels:['LP'],datasets:[{label:'% Acertos',data:[mediaLP],backgroundColor:'#1a56db'}]},options:{scales:{y:{max:100,title:{display:true,text:'Percentual (%)'}}}}});
-    chartMediaMT=new Chart(document.getElementById('chartMediaMT'),{type:'bar',data:{labels:['MT'],datasets:[{label:'% Acertos',data:[mediaMT],backgroundColor:'#f59e0b'}]},options:{scales:{y:{max:100,title:{display:true,text:'Percentual (%)'}}}}});
-    document.getElementById('melhoraLPList').innerHTML=data.filter(d=>d.farolLP.texto==='Melhora').map(d=>`<span class="student-tag">${d.nome}</span>`).join('')||'<span style="color:#64748b">Nenhum estudante</span>';
-    document.getElementById('melhoraMTList').innerHTML=data.filter(d=>d.farolMT.texto==='Melhora').map(d=>`<span class="student-tag">${d.nome}</span>`).join('')||'<span style="color:#64748b">Nenhum estudante</span>';
-    document.getElementById('melhoraAmbasList').innerHTML=data.filter(d=>d.farolLP.texto==='Melhora'&&d.farolMT.texto==='Melhora').map(d=>`<span class="student-tag">${d.nome}</span>`).join('')||'<span style="color:#64748b">Nenhum estudante</span>';
+
+  async function loadDashboard() {
+    const esc = document.getElementById('filterEscola').value;
+    const ano = document.getElementById('filterAno').value;
+    const turma = document.getElementById('filterTurma').value;
+    let ref = db.collection('ure_caieiras');
+    if(esc) ref = ref.where('escola', '==', esc);
+    if(ano) ref = ref.where('anoSerie', '==', ano);
+    if(turma) ref = ref.where('turma', '==', turma);
+    const snap = await ref.get();
+    const data = [];
+    let abaixoCount = 0, melhoraTotal = 0, estagTotal = 0, pioraTotal = 0, total = snap.size;
+    snap.forEach(doc => {
+      const d = doc.data();
+      const flp = getFarol(d.addLPstatus, d.ppLP);
+      const fmt = getFarol(d.addMTstatus, d.ppMT);
+      d.farolLP = flp; d.farolMT = fmt;
+      data.push(d);
+      if(d.addLPstatus === "Abaixo do Básico" || d.addMTstatus === "Abaixo do Básico") abaixoCount++;
+      if(flp.texto === 'Melhora' || fmt.texto === 'Melhora') melhoraTotal++;
+      else if(flp.texto === 'Piora' || fmt.texto === 'Piora') pioraTotal++;
+      else if(flp.texto !== 'S/D') estagTotal++;
+    });
+    const perfil = abaixoCount > (total * 0.5) ? "⚠️ Crítico (>50% abaixo)" : "✅ Estável (<50% abaixo)";
+    document.getElementById('kpiTotal').innerText = total;
+    document.getElementById('kpiAbaixo').innerHTML = `${abaixoCount} (${total?Math.round((abaixoCount/total)*100):0}%)`;
+    document.getElementById('kpiFarol').innerHTML = `<span class="farol f-verde"></span>${melhoraTotal} <span class="farol f-amarelo"></span>${estagTotal} <span class="farol f-vermelho"></span>${pioraTotal}`;
+    document.getElementById('kpiPerfil').innerHTML = perfil;
+    document.getElementById('kpiPerfil').style.color = perfil.includes('Crítico') ? '#ef4444' : '#22c55e';
+
+    const tbody = document.getElementById('dashTableBody');
+    tbody.innerHTML = data.map(d => `
+      <tr>
+        <td>${d.escola}<br><small>${d.anoSerie} - ${d.turma}</small></td>
+        <td>${d.nome || '--'}</td>
+        <td>${d.addLPeq || '-'} <span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td>
+        <td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td>
+        <td>${d.addMTeq || '-'} <span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td>
+        <td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td>
+        <td>${d.ppLP ?? '-'}%</td>
+        <td>${d.ppMT ?? '-'}%</td>
+      </tr>
+    `).join('');
+
+    const statusCountLP = { "Abaixo do Básico":0, "Básico":0, "Proficiente":0 };
+    const statusCountMT = { "Abaixo do Básico":0, "Básico":0, "Proficiente":0 };
+    data.forEach(d => {
+      if(d.addLPstatus && statusCountLP[d.addLPstatus] !== undefined) statusCountLP[d.addLPstatus]++;
+      if(d.addMTstatus && statusCountMT[d.addMTstatus] !== undefined) statusCountMT[d.addMTstatus]++;
+    });
+
+    if (chartStatusLP) chartStatusLP.destroy();
+    if (chartStatusMT) chartStatusMT.destroy();
+    if (chartMediaLP) chartMediaLP.destroy();
+    if (chartMediaMT) chartMediaMT.destroy();
+
+    chartStatusLP = new Chart(document.getElementById('chartStatusLP'), {
+      type: 'doughnut',
+      data: { labels: Object.keys(statusCountLP), datasets: [{ data: Object.values(statusCountLP), backgroundColor: ['#ef4444','#eab308','#22c55e'] }] }
+    });
+    chartStatusMT = new Chart(document.getElementById('chartStatusMT'), {
+      type: 'doughnut',
+      data: { labels: Object.keys(statusCountMT), datasets: [{ data: Object.values(statusCountMT), backgroundColor: ['#ef4444','#eab308','#22c55e'] }] }
+    });
+
+    const mediaLP = data.reduce((acc,d)=>acc+(parseFloat(d.ppLP)||0),0)/(data.length||1);
+    const mediaMT = data.reduce((acc,d)=>acc+(parseFloat(d.ppMT)||0),0)/(data.length||1);
+    chartMediaLP = new Chart(document.getElementById('chartMediaLP'), {
+      type: 'bar',
+      data: { labels: ['LP'], datasets: [{ label: '% Acertos', data: [mediaLP], backgroundColor: '#1a56db' }] },
+      options: { scales: { y: { max: 100, title: { display: true, text: 'Percentual (%)' } } } }
+    });
+    chartMediaMT = new Chart(document.getElementById('chartMediaMT'), {
+      type: 'bar',
+      data: { labels: ['MT'], datasets: [{ label: '% Acertos', data: [mediaMT], backgroundColor: '#f59e0b' }] },
+      options: { scales: { y: { max: 100, title: { display: true, text: 'Percentual (%)' } } } }
+    });
+
+    const melhoraLP = data.filter(d => d.farolLP.texto === 'Melhora').map(d => d.nome || '?');
+    const melhoraMT = data.filter(d => d.farolMT.texto === 'Melhora').map(d => d.nome || '?');
+    const melhoraAmbas = data.filter(d => d.farolLP.texto === 'Melhora' && d.farolMT.texto === 'Melhora').map(d => d.nome || '?');
+    document.getElementById('melhoraLPList').innerHTML = melhoraLP.length ? melhoraLP.map(n => `<span class="student-tag">${n}</span>`).join('') : '<span style="color:#64748b">Nenhum estudante</span>';
+    document.getElementById('melhoraMTList').innerHTML = melhoraMT.length ? melhoraMT.map(n => `<span class="student-tag">${n}</span>`).join('') : '<span style="color:#64748b">Nenhum estudante</span>';
+    document.getElementById('melhoraAmbasList').innerHTML = melhoraAmbas.length ? melhoraAmbas.map(n => `<span class="student-tag">${n}</span>`).join('') : '<span style="color:#64748b">Nenhum estudante</span>';
   }
 
-  // CRUD corrigido com ordenação e recarregamento correto
+  // ========== CRUD ESTUDANTES ==========
   let todosRegistros = [];
-  async function loadCRUD() { const snap = await db.collection('ure_caieiras').orderBy('updatedAt','desc').get(); todosRegistros = []; snap.forEach(doc => { todosRegistros.push({ id: doc.id, ...doc.data() }); }); filtrarRegistros(); }
-  function filtrarRegistros() { const escola = document.getElementById('filtroRegistroEscola').value, ano = document.getElementById('filtroRegistroAno').value, turma = document.getElementById('filtroRegistroTurma').value; const filtrados = todosRegistros.filter(r => { if(escola && r.escola !== escola) return false; if(ano && r.anoSerie !== ano) return false; if(turma && r.turma !== turma) return false; return true; }); const tbody = document.getElementById('crudTableBody'); if(filtrados.length===0){ tbody.innerHTML='<tr><td colspan="10">Nenhum registro encontrado.</td></tr>'; return; } let html=''; filtrados.forEach(r=>{ const lpClass=`bg-${(r.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`, mtClass=`bg-${(r.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`; html+=`<tr><td>${r.escola||''}</td><td>${r.anoSerie||''}</td><td>${r.turma||''}</td><td>${r.professor||''}</td><td>${r.nome||''}</td><td class="badge ${lpClass}">${r.addLPstatus||'❓'}</td><td class="badge ${mtClass}">${r.addMTstatus||'❓'}</td><td>${r.ppLP||''}%</td><td>${r.ppMT||''}%</td><td><button class="btn" onclick="editDoc('${r.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-edit"></i> Editar</button><button class="btn btn-del" onclick="delDoc('${r.id}')" style="padding:4px 12px;"><i class="fas fa-trash"></i> Excluir</button></td></tr>`; }); tbody.innerHTML=html; }
-  function limparFiltrosRegistros() { document.getElementById('filtroRegistroEscola').value=''; document.getElementById('filtroRegistroAno').value=''; document.getElementById('filtroRegistroTurma').value=''; filtrarRegistros(); }
+
+  async function loadCRUD() {
+    const snap = await db.collection('ure_caieiras').orderBy('updatedAt', 'desc').get();
+    todosRegistros = [];
+    snap.forEach(doc => { todosRegistros.push({ id: doc.id, ...doc.data() }); });
+    filtrarRegistros();
+  }
+
+  function filtrarRegistros() {
+    const escola = document.getElementById('filtroRegistroEscola').value;
+    const ano = document.getElementById('filtroRegistroAno').value;
+    const turma = document.getElementById('filtroRegistroTurma').value;
+    const filtrados = todosRegistros.filter(r => {
+      if(escola && r.escola !== escola) return false;
+      if(ano && r.anoSerie !== ano) return false;
+      if(turma && r.turma !== turma) return false;
+      return true;
+    });
+    const tbody = document.getElementById('crudTableBody');
+    if(filtrados.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10">Nenhum registro encontrado.</td></tr>';
+      return;
+    }
+    let html = '';
+    filtrados.forEach(r => {
+      const lpClass = `bg-${(r.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
+      const mtClass = `bg-${(r.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
+      html += `
+        <tr>
+          <td>${r.escola || ''}</td>
+          <td>${r.anoSerie || ''}</td>
+          <td>${r.turma || ''}</td>
+          <td>${r.professor || ''}</td>
+          <td>${r.nome || ''}</td>
+          <td class="badge ${lpClass}">${r.addLPstatus || '❓'}</td>
+          <td class="badge ${mtClass}">${r.addMTstatus || '❓'}</td>
+          <td>${r.ppLP || ''}%</td>
+          <td>${r.ppMT || ''}%</td>
+          <td>
+            <button class="btn" onclick="editDoc('${r.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-edit"></i> Editar</button>
+            <button class="btn btn-del" onclick="delDoc('${r.id}')" style="padding:4px 12px;"><i class="fas fa-trash"></i> Excluir</button>
+          </td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = html;
+  }
+
+  function limparFiltrosRegistros() {
+    document.getElementById('filtroRegistroEscola').value = '';
+    document.getElementById('filtroRegistroAno').value = '';
+    document.getElementById('filtroRegistroTurma').value = '';
+    filtrarRegistros();
+  }
 
   const studentForm = document.getElementById('studentForm');
-  studentForm.addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('docId').value; const payload = { escola: document.getElementById('sEscola').value, anoSerie: document.getElementById('sAno').value, turma: document.getElementById('sTurma').value, professor: document.getElementById('sProfessor').value, nome: document.getElementById('sNome').value, addLPeq: document.getElementById('sAddLPeq').value, addLPstatus: document.getElementById('sAddLPstatus').value, addMTeq: document.getElementById('sAddMTeq').value, addMTstatus: document.getElementById('sAddMTstatus').value, ppLP: document.getElementById('sPPLP').value, ppMT: document.getElementById('sPPMT').value, obs: document.getElementById('sObs').value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; if(!payload.addLPstatus||!payload.addMTstatus){ showToast("Selecione os status de ADD."); return; } try { if(id) await db.collection('ure_caieiras').doc(id).update(payload); else await db.collection('ure_caieiras').add(payload); showToast(id?"✅ Atualizado!":"✅ Salvo!"); resetForm(); await loadCRUD(); await loadDashboard(); } catch(err){ showToast("❌ Erro: "+err.message); } });
-  async function editDoc(id) { const snap = await db.collection('ure_caieiras').doc(id).get(); const d=snap.data(); document.getElementById('docId').value=id; document.getElementById('sEscola').value=d.escola||''; document.getElementById('sAno').value=d.anoSerie||''; document.getElementById('sTurma').value=d.turma||''; document.getElementById('sProfessor').value=d.professor||''; document.getElementById('sNome').value=d.nome||''; document.getElementById('sAddLPeq').value=d.addLPeq||''; document.getElementById('sAddLPstatus').value=d.addLPstatus||''; document.getElementById('sAddMTeq').value=d.addMTeq||''; document.getElementById('sAddMTstatus').value=d.addMTstatus||''; document.getElementById('sPPLP').value=d.ppLP||''; document.getElementById('sPPMT').value=d.ppMT||''; document.getElementById('sObs').value=d.obs||''; document.getElementById('formTitle').innerHTML='<i class="fas fa-edit"></i> Editando Registro'; window.scrollTo(0,0); }
-  function delDoc(id) { if(confirm("Excluir permanentemente?")) { db.collection('ure_caieiras').doc(id).delete().then(()=>{ showToast("🗑️ Excluído!"); loadCRUD(); loadDashboard(); }); } }
-  function resetForm() { studentForm.reset(); document.getElementById('docId').value=""; document.getElementById('formTitle').innerHTML='<i class="fas fa-plus-circle"></i> Novo Registro'; }
-  async function inserirEmLote() { const raw=document.getElementById('bulkData').value; if(!raw.trim()){ showToast("Cole os dados."); return; } const lines=raw.split(/\r?\n/).filter(l=>l.trim()!==""); let success=0, error=0; for(let line of lines){ const cols=line.split(',').map(c=>c.trim()); if(cols.length<12){ error++; continue; } const [escola,anoSerie,turma,professor,nome,eqLP,statusLP,eqMT,statusMT,ppLP,ppMT,obs]=cols; if(!statusLP||!statusMT){ error++; continue; } if(!["Abaixo do Básico","Básico","Proficiente"].includes(statusLP)||!["Abaixo do Básico","Básico","Proficiente"].includes(statusMT)){ error++; continue; } try{ await db.collection('ure_caieiras').add({escola,anoSerie,turma,professor,nome,addLPeq:eqLP,addLPstatus:statusLP,addMTeq:eqMT,addMTstatus:statusMT,ppLP,ppMT,obs,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}); success++; }catch(e){ error++; } } document.getElementById('loteFeedback').innerHTML=`✅ ${success} inseridos, ❌ ${error} com erro.`; showToast(`${success} inseridos.`); await loadCRUD(); await loadDashboard(); if(success>0) document.getElementById('bulkData').value=""; }
-  function limparCampoLote(){ document.getElementById('bulkData').value=""; document.getElementById('loteFeedback').innerHTML=""; }
+  studentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('docId').value;
+    const payload = {
+      escola: document.getElementById('sEscola').value,
+      anoSerie: document.getElementById('sAno').value,
+      turma: document.getElementById('sTurma').value,
+      professor: document.getElementById('sProfessor').value,
+      nome: document.getElementById('sNome').value,
+      addLPeq: document.getElementById('sAddLPeq').value,
+      addLPstatus: document.getElementById('sAddLPstatus').value,
+      addMTeq: document.getElementById('sAddMTeq').value,
+      addMTstatus: document.getElementById('sAddMTstatus').value,
+      ppLP: document.getElementById('sPPLP').value,
+      ppMT: document.getElementById('sPPMT').value,
+      obs: document.getElementById('sObs').value,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if(!payload.addLPstatus || !payload.addMTstatus) { showToast("Selecione os status de ADD."); return; }
+    try {
+      if(id) await db.collection('ure_caieiras').doc(id).update(payload);
+      else await db.collection('ure_caieiras').add(payload);
+      showToast(id ? "✅ Atualizado!" : "✅ Salvo!");
+      resetForm();
+      await loadCRUD();
+      await loadDashboard();
+    } catch(err) { showToast("❌ Erro: " + err.message); }
+  });
 
-  // Descritor
-  async function carregarDescritor(){ const e=document.getElementById('descritorEscola').value, a=document.getElementById('descritorAno').value, t=document.getElementById('descritorTurma').value; if(!e||!a||!t){ document.getElementById('descritorTexto').value=''; return; } const key=`${e}|${a}|${t}`, doc=await db.collection('descritores_prova_paulista').doc(key).get(); document.getElementById('descritorTexto').value=doc.exists?doc.data().texto:''; }
-  async function salvarDescritor(){ const e=document.getElementById('descritorEscola').value, a=document.getElementById('descritorAno').value, t=document.getElementById('descritorTurma').value, texto=document.getElementById('descritorTexto').value; if(!e||!a||!t){ showToast("Selecione escola, ano e turma."); return; } const key=`${e}|${a}|${t}`; await db.collection('descritores_prova_paulista').doc(key).set({texto,escola:e,ano:a,turma:t,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}); showToast("Descritor salvo!"); recarregarListaDescritores(); }
-  async function recarregarListaDescritores(){ const snap=await db.collection('descritores_prova_paulista').get(); const select=document.getElementById('listaDescritores'); select.innerHTML='<option value="">-- Selecione um descritor para editar --</option>'; snap.forEach(doc=>{ const data=doc.data(); const opt=document.createElement('option'); opt.value=doc.id; opt.textContent=`${data.escola} | ${data.ano} | ${data.turma}`; opt.setAttribute('data-escola',data.escola); opt.setAttribute('data-ano',data.ano); opt.setAttribute('data-turma',data.turma); opt.setAttribute('data-texto',data.texto); select.appendChild(opt); }); }
-  function carregarDescritorPorSelecao(){ const select=document.getElementById('listaDescritores'); const opt=select.options[select.selectedIndex]; if(!opt.value) return; document.getElementById('descritorEscola').value=opt.getAttribute('data-escola'); document.getElementById('descritorAno').value=opt.getAttribute('data-ano'); document.getElementById('descritorTurma').value=opt.getAttribute('data-turma'); document.getElementById('descritorTexto').value=opt.getAttribute('data-texto')||''; carregarDescritor(); }
+  async function editDoc(id) {
+    const snap = await db.collection('ure_caieiras').doc(id).get();
+    const d = snap.data();
+    document.getElementById('docId').value = id;
+    document.getElementById('sEscola').value = d.escola || '';
+    document.getElementById('sAno').value = d.anoSerie || '';
+    document.getElementById('sTurma').value = d.turma || '';
+    document.getElementById('sProfessor').value = d.professor || '';
+    document.getElementById('sNome').value = d.nome || '';
+    document.getElementById('sAddLPeq').value = d.addLPeq || '';
+    document.getElementById('sAddLPstatus').value = d.addLPstatus || '';
+    document.getElementById('sAddMTeq').value = d.addMTeq || '';
+    document.getElementById('sAddMTstatus').value = d.addMTstatus || '';
+    document.getElementById('sPPLP').value = d.ppLP || '';
+    document.getElementById('sPPMT').value = d.ppMT || '';
+    document.getElementById('sObs').value = d.obs || '';
+    document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Editando Registro';
+    window.scrollTo(0,0);
+  }
 
-  // Boletim
-  let descritorBoletimGlobal="";
-  async function carregarDescritorBoletim(){ const e=document.getElementById('boletimEscola').value, a=document.getElementById('boletimAno').value, t=document.getElementById('boletimTurma').value; if(!e||!a||!t){ descritorBoletimGlobal=""; return; } const key=`${e}|${a}|${t}`, doc=await db.collection('descritores_prova_paulista').doc(key).get(); descritorBoletimGlobal=doc.exists?doc.data().texto:"Não registrado"; }
-  async function gerarBoletim(){ const esc=document.getElementById('boletimEscola').value, ano=document.getElementById('boletimAno').value, turma=document.getElementById('boletimTurma').value; if(!esc||!ano||!turma){ showToast("Selecione escola, ano e turma."); return; } await carregarDescritorBoletim(); const snap=await db.collection('ure_caieiras').where('escola','==',esc).where('anoSerie','==',ano).where('turma','==',turma).get(); const data=[]; let total=snap.size, abaixo=0, melhora=0, estag=0, piora=0; snap.forEach(doc=>{ const d=doc.data(); const flp=getFarol(d.addLPstatus,d.ppLP), fmt=getFarol(d.addMTstatus,d.ppMT); d.farolLP=flp; d.farolMT=fmt; data.push(d); if(d.addLPstatus==="Abaixo do Básico"||d.addMTstatus==="Abaixo do Básico") abaixo++; if(flp.texto==='Melhora'||fmt.texto==='Melhora') melhora++; else if(flp.texto==='Piora'||fmt.texto==='Piora') piora++; else if(flp.texto!=='S/D') estag++; }); const perfil=abaixo>(total*0.5)?"Crítico (>50% abaixo)":"Estável (<50% abaixo)"; const win=window.open(); win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Boletim - ${esc} - ${ano} - Turma ${turma}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:'Inter',sans-serif;padding:2rem;}.header{text-align:center;border-bottom:2px solid #d32f2f;}.kpi-grid{display:flex;flex-wrap:wrap;gap:1rem;margin:1rem 0;}.kpi-card{background:#f8fafc;border-radius:20px;padding:1rem;text-align:center;flex:1;}table{width:100%;border-collapse:collapse;}th{background:#0a2f6c;color:white;padding:0.5rem;}td{padding:0.5rem;border-bottom:1px solid #ccc;}.badge{padding:0.2rem 0.5rem;border-radius:20px;color:white;display:inline-block;}.bg-abaixodobásico{background:#ef4444;}.bg-básico{background:#eab308;color:#1f2937;}.bg-proficiente{background:#22c55e;}.farol{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;}.f-verde{background:#22c55e;}.f-amarelo{background:#eab308;}.f-vermelho{background:#ef4444;}</style></head><body><div class="header"><h1>URE-CAIEIRAS - Boletim</h1><p>ADD vs Prova Paulista (1º Bim)</p></div><div><strong>Escola:</strong> ${esc} | <strong>Ano:</strong> ${ano} | <strong>Turma:</strong> ${turma} | <strong>Data:</strong> ${new Date().toLocaleDateString()}</div><div class="kpi-grid"><div class="kpi-card">Total: ${total}</div><div class="kpi-card">Abaixo ADD: ${abaixo} (${Math.round(abaixo/total*100)||0}%)</div><div class="kpi-card">Farol: 🟢${melhora} 🟡${estag} 🔴${piora}</div><div class="kpi-card">Perfil: ${perfil}</div></div><div style="background:#fef9e3;padding:0.8rem;"><strong>📉 Descritor menor acerto:</strong> ${descritorBoletimGlobal}</div><h3>Detalhamento</h3><table><thead><tr><th>Estudante</th><th>ADD LP</th><th>Farol LP</th><th>PP LP%</th><th>ADD MT</th><th>Farol MT</th><th>PP MT%</th></tr></thead><tbody>${data.map(d=>`<tr><td>${d.nome||'--'}</td><td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td><td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td><td>${d.ppLP??'-'}%</td><td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td><td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td><td>${d.ppMT??'-'}%</td></tr>`).join('')}</tbody></table><footer>URE-CAIEIRAS - ADD vs Prova Paulista 1º Bim</footer></body></html>`); win.document.close(); }
+  function delDoc(id) {
+    if(confirm("Excluir permanentemente?")) {
+      db.collection('ure_caieiras').doc(id).delete().then(() => { showToast("🗑️ Excluído!"); loadCRUD(); loadDashboard(); });
+    }
+  }
 
-  // Planos de intervenção com PDF
+  function resetForm() {
+    studentForm.reset();
+    document.getElementById('docId').value = "";
+    document.getElementById('formTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Novo Registro';
+  }
+
+  async function inserirEmLote() {
+    const raw = document.getElementById('bulkData').value;
+    if(!raw.trim()) { showToast("Cole os dados."); return; }
+    const lines = raw.split(/\r?\n/).filter(l => l.trim() !== "");
+    let success = 0, error = 0;
+    for(let line of lines) {
+      const cols = line.split(',').map(c => c.trim());
+      if(cols.length < 12) { error++; continue; }
+      const [escola, anoSerie, turma, professor, nome, eqLP, statusLP, eqMT, statusMT, ppLP, ppMT, obs] = cols;
+      if(!statusLP || !statusMT) { error++; continue; }
+      if(!["Abaixo do Básico","Básico","Proficiente"].includes(statusLP) || !["Abaixo do Básico","Básico","Proficiente"].includes(statusMT)) { error++; continue; }
+      try {
+        await db.collection('ure_caieiras').add({ escola, anoSerie, turma, professor, nome, addLPeq: eqLP, addLPstatus: statusLP, addMTeq: eqMT, addMTstatus: statusMT, ppLP, ppMT, obs, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        success++;
+      } catch(e) { error++; }
+    }
+    document.getElementById('loteFeedback').innerHTML = `✅ ${success} inseridos, ❌ ${error} com erro.`;
+    showToast(`${success} inseridos.`);
+    await loadCRUD();
+    await loadDashboard();
+    if(success > 0) document.getElementById('bulkData').value = "";
+  }
+
+  function limparCampoLote() { document.getElementById('bulkData').value = ""; document.getElementById('loteFeedback').innerHTML = ""; }
+
+  // ========== DESCRITOR ==========
+  async function carregarDescritor() {
+    const e = document.getElementById('descritorEscola').value;
+    const a = document.getElementById('descritorAno').value;
+    const t = document.getElementById('descritorTurma').value;
+    if(!e || !a || !t) { document.getElementById('descritorTexto').value = ''; return; }
+    const key = `${e}|${a}|${t}`;
+    const doc = await db.collection('descritores_prova_paulista').doc(key).get();
+    document.getElementById('descritorTexto').value = doc.exists ? doc.data().texto : '';
+  }
+
+  async function salvarDescritor() {
+    const e = document.getElementById('descritorEscola').value;
+    const a = document.getElementById('descritorAno').value;
+    const t = document.getElementById('descritorTurma').value;
+    const texto = document.getElementById('descritorTexto').value;
+    if(!e || !a || !t) { showToast("Selecione escola, ano e turma."); return; }
+    const key = `${e}|${a}|${t}`;
+    await db.collection('descritores_prova_paulista').doc(key).set({ texto, escola:e, ano:a, turma:t, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    showToast("Descritor salvo!");
+    recarregarListaDescritores();
+  }
+
+  async function recarregarListaDescritores() {
+    const snap = await db.collection('descritores_prova_paulista').get();
+    const select = document.getElementById('listaDescritores');
+    select.innerHTML = '<option value="">-- Selecione um descritor para editar --</option>';
+    snap.forEach(doc => {
+      const data = doc.data();
+      const opt = document.createElement('option');
+      opt.value = doc.id;
+      opt.textContent = `${data.escola} | ${data.ano} | ${data.turma}`;
+      opt.setAttribute('data-escola', data.escola);
+      opt.setAttribute('data-ano', data.ano);
+      opt.setAttribute('data-turma', data.turma);
+      opt.setAttribute('data-texto', data.texto);
+      select.appendChild(opt);
+    });
+  }
+
+  function carregarDescritorPorSelecao() {
+    const select = document.getElementById('listaDescritores');
+    const opt = select.options[select.selectedIndex];
+    if(!opt.value) return;
+    document.getElementById('descritorEscola').value = opt.getAttribute('data-escola');
+    document.getElementById('descritorAno').value = opt.getAttribute('data-ano');
+    document.getElementById('descritorTurma').value = opt.getAttribute('data-turma');
+    document.getElementById('descritorTexto').value = opt.getAttribute('data-texto') || '';
+    carregarDescritor();
+  }
+
+  // ========== BOLETIM ==========
+  let descritorBoletimGlobal = "";
+  async function carregarDescritorBoletim() {
+    const e = document.getElementById('boletimEscola').value;
+    const a = document.getElementById('boletimAno').value;
+    const t = document.getElementById('boletimTurma').value;
+    if(!e || !a || !t) { descritorBoletimGlobal = ""; return; }
+    const key = `${e}|${a}|${t}`;
+    const doc = await db.collection('descritores_prova_paulista').doc(key).get();
+    descritorBoletimGlobal = doc.exists ? doc.data().texto : "Não registrado";
+  }
+
+  async function gerarBoletim() {
+    const esc = document.getElementById('boletimEscola').value;
+    const ano = document.getElementById('boletimAno').value;
+    const turma = document.getElementById('boletimTurma').value;
+    if(!esc || !ano || !turma) { showToast("Selecione escola, ano e turma."); return; }
+    await carregarDescritorBoletim();
+    const snap = await db.collection('ure_caieiras').where('escola','==',esc).where('anoSerie','==',ano).where('turma','==',turma).get();
+    const data = [];
+    let total = snap.size, abaixo = 0, melhora = 0, estag = 0, piora = 0;
+    snap.forEach(doc => {
+      const d = doc.data();
+      const flp = getFarol(d.addLPstatus, d.ppLP);
+      const fmt = getFarol(d.addMTstatus, d.ppMT);
+      d.farolLP = flp; d.farolMT = fmt;
+      data.push(d);
+      if(d.addLPstatus === "Abaixo do Básico" || d.addMTstatus === "Abaixo do Básico") abaixo++;
+      if(flp.texto === 'Melhora' || fmt.texto === 'Melhora') melhora++;
+      else if(flp.texto === 'Piora' || fmt.texto === 'Piora') piora++;
+      else if(flp.texto !== 'S/D') estag++;
+    });
+    const perfil = abaixo > (total * 0.5) ? "Crítico (>50% abaixo)" : "Estável (<50% abaixo)";
+    const win = window.open();
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><title>Boletim - ${esc} - ${ano} - Turma ${turma}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+      <style>
+        body{font-family:'Inter',sans-serif;padding:2rem;}
+        .header{text-align:center;border-bottom:2px solid #d32f2f;}
+        .kpi-grid{display:flex;flex-wrap:wrap;gap:1rem;margin:1rem 0;}
+        .kpi-card{background:#f8fafc;border-radius:20px;padding:1rem;text-align:center;flex:1;}
+        table{width:100%;border-collapse:collapse;}
+        th{background:#0a2f6c;color:white;padding:0.5rem;}
+        td{padding:0.5rem;border-bottom:1px solid #ccc;}
+        .badge{padding:0.2rem 0.5rem;border-radius:20px;color:white;display:inline-block;}
+        .bg-abaixodobásico{background:#ef4444;}
+        .bg-básico{background:#eab308;color:#1f2937;}
+        .bg-proficiente{background:#22c55e;}
+        .farol{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;}
+        .f-verde{background:#22c55e;}.f-amarelo{background:#eab308;}.f-vermelho{background:#ef4444;}
+      </style>
+      </head>
+      <body>
+        <div class="header"><h1>URE-CAIEIRAS - Boletim</h1><p>ADD vs Prova Paulista (1º Bim)</p></div>
+        <div><strong>Escola:</strong> ${esc} | <strong>Ano:</strong> ${ano} | <strong>Turma:</strong> ${turma} | <strong>Data:</strong> ${new Date().toLocaleDateString()}</div>
+        <div class="kpi-grid">
+          <div class="kpi-card">Total: ${total}</div>
+          <div class="kpi-card">Abaixo ADD: ${abaixo} (${Math.round(abaixo/total*100)||0}%)</div>
+          <div class="kpi-card">Farol: 🟢${melhora} 🟡${estag} 🔴${piora}</div>
+          <div class="kpi-card">Perfil: ${perfil}</div>
+        </div>
+        <div style="background:#fef9e3;padding:0.8rem;"><strong>📉 Descritor menor acerto:</strong> ${descritorBoletimGlobal}</div>
+        <h3>Detalhamento</h3>
+        <table>
+          <thead><tr><th>Estudante</th><th>ADD LP</th><th>Farol LP</th><th>PP LP%</th><th>ADD MT</th><th>Farol MT</th><th>PP MT%</th></tr></thead>
+          <tbody>${data.map(d => `
+            <tr>
+              <td>${d.nome||'--'}</td>
+              <td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td>
+              <td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td>
+              <td>${d.ppLP??'-'}%</td>
+              <td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td>
+              <td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td>
+              <td>${d.ppMT??'-'}%</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+        <footer style="margin-top:2rem;text-align:center;">URE-CAIEIRAS - ADD vs Prova Paulista 1º Bim</footer>
+      </body>
+      </html>
+    `);
+    win.document.close();
+  }
+
+  // ========== PLANOS DE INTERVENÇÃO ==========
   let todosPlanos = [];
-  async function carregarPlanos() { const snap = await db.collection('planos_intervencao').orderBy('updatedAt','desc').get(); todosPlanos = []; snap.forEach(doc => { todosPlanos.push({ id: doc.id, ...doc.data() }); }); filtrarPlanos(); }
-  function filtrarPlanos() { const e=document.getElementById('filtroPlanoEscola').value, a=document.getElementById('filtroPlanoAno').value, t=document.getElementById('filtroPlanoTurma').value; const filtrados = todosPlanos.filter(p=>{ if(e && p.escola!==e) return false; if(a && p.anoSerie!==a) return false; if(t && p.turma!==t) return false; return true; }); const tbody=document.getElementById('intervencaoTableBody'); if(filtrados.length===0){ tbody.innerHTML='<tr><td colspan="8">Nenhum plano encontrado.</td></tr>'; return; } tbody.innerHTML=filtrados.map(p=>`<tr><td>${p.escola||''}</td><td>${p.anoSerie||''}</td><td>${p.turma||''}</td><td>${p.professor||''}</td><td>${p.disciplina||''}</td><td>${p.descritor||''}</td><td>${p.dataInicio||''} até ${p.dataFim||''}</td><td><button class="btn" onclick="editarPlano('${p.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-edit"></i> Editar</button><button class="btn btn-del" onclick="excluirPlano('${p.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-trash"></i> Excluir</button><button class="btn" onclick="gerarPDFPlano('${p.id}')" style="background:#2c5f8a; padding:4px 12px;"><i class="fas fa-file-pdf"></i> PDF</button></td></tr>`).join(''); }
-  function limparFiltrosPlanos() { document.getElementById('filtroPlanoEscola').value=''; document.getElementById('filtroPlanoAno').value=''; document.getElementById('filtroPlanoTurma').value=''; filtrarPlanos(); }
-  async function editarPlano(id) { const doc=await db.collection('planos_intervencao').doc(id).get(); const p=doc.data(); document.getElementById('intervencaoId').value=id; document.getElementById('iEscola').value=p.escola||''; document.getElementById('iAno').value=p.anoSerie||''; document.getElementById('iTurma').value=p.turma||''; document.getElementById('iProfessor').value=p.professor||''; document.getElementById('iDisciplina').value=p.disciplina||''; document.getElementById('iDescritor').value=p.descritor||''; document.getElementById('iAula').value=p.aulaRelacionada||''; document.getElementById('iAprendizagem').value=p.aprendizagemEssencial||''; document.getElementById('iDataInicio').value=p.dataInicio||''; document.getElementById('iDataFim').value=p.dataFim||''; document.getElementById('iDescricao').value=p.descricao||''; atualizarContador(); window.scrollTo(0,0); }
-  function excluirPlano(id) { if(confirm("Excluir este plano?")) { db.collection('planos_intervencao').doc(id).delete().then(()=>{ showToast("Excluído!"); carregarPlanos(); }); } }
-  async function gerarPDFPlano(id) { const doc=await db.collection('planos_intervencao').doc(id).get(); const p=doc.data(); const win=window.open(); win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Plano de Intervenção - ${p.escola} - ${p.anoSerie} - ${p.turma}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:'Inter',sans-serif;padding:2rem;}.header{text-align:center;border-bottom:2px solid #d32f2f;margin-bottom:2rem;}.info{background:#f1f5f9;padding:1rem;border-radius:16px;margin-bottom:1.5rem;}.field{margin-bottom:1rem;}.label{font-weight:600;color:#0a2f6c;}.content{white-space:pre-wrap;}</style></head><body><div class="header"><h1>URE-CAIEIRAS - Plano de Intervenção (Dia D)</h1><p>ADD vs Prova Paulista 1º Bimestre</p></div><div class="info"><div class="field"><span class="label">Escola:</span> ${p.escola||''}</div><div class="field"><span class="label">Ano/Série:</span> ${p.anoSerie||''}</div><div class="field"><span class="label">Turma:</span> ${p.turma||''}</div><div class="field"><span class="label">Professor:</span> ${p.professor||''}</div><div class="field"><span class="label">Disciplina:</span> ${p.disciplina||''}</div><div class="field"><span class="label">Descritor de menor acerto:</span> ${p.descritor||''}</div><div class="field"><span class="label">Aula relacionada:</span> ${p.aulaRelacionada||''}</div><div class="field"><span class="label">Aprendizagem essencial:</span> ${p.aprendizagemEssencial||''}</div><div class="field"><span class="label">Período de execução:</span> ${p.dataInicio||''} até ${p.dataFim||''}</div></div><div class="field"><span class="label">Descrição do Plano:</span></div><div class="content">${p.descricao||''}</div><footer style="margin-top:2rem; text-align:center; font-size:0.8rem; color:#64748b;">Documento gerado pelo Sistema URE-CAIEIRAS em ${new Date().toLocaleString()}</footer></body></html>`); win.document.close(); win.print(); }
+
+  async function carregarPlanos() {
+    const snap = await db.collection('planos_intervencao').orderBy('updatedAt','desc').get();
+    todosPlanos = [];
+    snap.forEach(doc => { todosPlanos.push({ id: doc.id, ...doc.data() }); });
+    filtrarPlanos();
+  }
+
+  function filtrarPlanos() {
+    const e = document.getElementById('filtroPlanoEscola').value;
+    const a = document.getElementById('filtroPlanoAno').value;
+    const t = document.getElementById('filtroPlanoTurma').value;
+    const filtrados = todosPlanos.filter(p => {
+      if(e && p.escola !== e) return false;
+      if(a && p.anoSerie !== a) return false;
+      if(t && p.turma !== t) return false;
+      return true;
+    });
+    const tbody = document.getElementById('intervencaoTableBody');
+    if(filtrados.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8">Nenhum plano encontrado.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filtrados.map(p => `
+      <tr>
+        <td>${p.escola || ''}</td>
+        <td>${p.anoSerie || ''}</td>
+        <td>${p.turma || ''}</td>
+        <td>${p.professor || ''}</td>
+        <td>${p.disciplina || ''}</td>
+        <td>${p.descritor || ''}</td>
+        <td>${p.dataInicio || ''} até ${p.dataFim || ''}</td>
+        <td>
+          <button class="btn" onclick="editarPlano('${p.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-edit"></i> Editar</button>
+          <button class="btn btn-del" onclick="excluirPlano('${p.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-trash"></i> Excluir</button>
+          <button class="btn" onclick="gerarPDFPlano('${p.id}')" style="background:#2c5f8a; padding:4px 12px;"><i class="fas fa-file-pdf"></i> PDF</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function limparFiltrosPlanos() {
+    document.getElementById('filtroPlanoEscola').value = '';
+    document.getElementById('filtroPlanoAno').value = '';
+    document.getElementById('filtroPlanoTurma').value = '';
+    filtrarPlanos();
+  }
+
+  async function editarPlano(id) {
+    const doc = await db.collection('planos_intervencao').doc(id).get();
+    const p = doc.data();
+    document.getElementById('intervencaoId').value = id;
+    document.getElementById('iEscola').value = p.escola || '';
+    document.getElementById('iAno').value = p.anoSerie || '';
+    document.getElementById('iTurma').value = p.turma || '';
+    document.getElementById('iProfessor').value = p.professor || '';
+    document.getElementById('iDisciplina').value = p.disciplina || '';
+    document.getElementById('iDescritor').value = p.descritor || '';
+    document.getElementById('iAula').value = p.aulaRelacionada || '';
+    document.getElementById('iAprendizagem').value = p.aprendizagemEssencial || '';
+    document.getElementById('iDataInicio').value = p.dataInicio || '';
+    document.getElementById('iDataFim').value = p.dataFim || '';
+    document.getElementById('iDescricao').value = p.descricao || '';
+    atualizarContador();
+    window.scrollTo(0,0);
+  }
+
+  function excluirPlano(id) {
+    if(confirm("Excluir este plano?")) {
+      db.collection('planos_intervencao').doc(id).delete().then(() => { showToast("Excluído!"); carregarPlanos(); });
+    }
+  }
+
+  async function gerarPDFPlano(id) {
+    const doc = await db.collection('planos_intervencao').doc(id).get();
+    const p = doc.data();
+    const win = window.open();
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><title>Plano de Intervenção - ${p.escola} - ${p.anoSerie} - ${p.turma}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+      <style>
+        body{font-family:'Inter',sans-serif;padding:2rem;}
+        .header{text-align:center;border-bottom:2px solid #d32f2f;margin-bottom:2rem;}
+        .info{background:#f1f5f9;padding:1rem;border-radius:16px;margin-bottom:1.5rem;}
+        .field{margin-bottom:0.8rem;}
+        .label{font-weight:600;color:#0a2f6c;}
+        .content{white-space:pre-wrap;background:#fefce8;padding:1rem;border-radius:16px;}
+        footer{margin-top:2rem;text-align:center;font-size:0.8rem;color:#64748b;}
+      </style>
+      </head>
+      <body>
+        <div class="header"><h1>URE-CAIEIRAS - Plano de Intervenção (Dia D)</h1><p>ADD vs Prova Paulista 1º Bimestre</p></div>
+        <div class="info">
+          <div class="field"><span class="label">Escola:</span> ${p.escola||''}</div>
+          <div class="field"><span class="label">Ano/Série:</span> ${p.anoSerie||''}</div>
+          <div class="field"><span class="label">Turma:</span> ${p.turma||''}</div>
+          <div class="field"><span class="label">Professor:</span> ${p.professor||''}</div>
+          <div class="field"><span class="label">Disciplina:</span> ${p.disciplina||''}</div>
+          <div class="field"><span class="label">Descritor de menor acerto:</span> ${p.descritor||''}</div>
+          <div class="field"><span class="label">Aula relacionada:</span> ${p.aulaRelacionada||''}</div>
+          <div class="field"><span class="label">Aprendizagem essencial:</span> ${p.aprendizagemEssencial||''}</div>
+          <div class="field"><span class="label">Período de execução:</span> ${p.dataInicio||''} até ${p.dataFim||''}</div>
+        </div>
+        <div class="field"><span class="label">Descrição do Plano:</span></div>
+        <div class="content">${p.descricao||''}</div>
+        <footer>Documento gerado pelo Sistema URE-CAIEIRAS em ${new Date().toLocaleString()}</footer>
+      </body>
+      </html>
+    `);
+    win.document.close();
+    win.print();
+  }
+
   const planoForm = document.getElementById('intervencaoForm');
-  planoForm.addEventListener('submit', async(e)=>{ e.preventDefault(); const id=document.getElementById('intervencaoId').value; const dados={ escola:document.getElementById('iEscola').value, anoSerie:document.getElementById('iAno').value, turma:document.getElementById('iTurma').value, professor:document.getElementById('iProfessor').value, disciplina:document.getElementById('iDisciplina').value, descritor:document.getElementById('iDescritor').value, aulaRelacionada:document.getElementById('iAula').value, aprendizagemEssencial:document.getElementById('iAprendizagem').value, dataInicio:document.getElementById('iDataInicio').value, dataFim:document.getElementById('iDataFim').value, descricao:document.getElementById('iDescricao').value, updatedAt:firebase.firestore.FieldValue.serverTimestamp() }; if(new Date(dados.dataInicio)>new Date(dados.dataFim)){ showToast("Data de início > data de fim."); return; } if(!dados.descricao.trim()){ showToast("Preencha a descrição."); return; } try{ if(id) await db.collection('planos_intervencao').doc(id).update(dados); else await db.collection('planos_intervencao').add(dados); showToast(id?"Plano atualizado!":"Plano salvo!"); resetIntervencaoForm(); carregarPlanos(); }catch(err){ showToast("Erro: "+err.message); } });
-  function resetIntervencaoForm() { planoForm.reset(); document.getElementById('intervencaoId').value=""; document.getElementById('iDescricao').value=""; atualizarContador(); }
-  function atualizarContador() { const t=document.getElementById('iDescricao'), c=document.getElementById('caracteresRestantes'); if(t&&c) c.textContent=1000-t.value.length; }
-  function inserirModeloDescricao() { const modelo=`1) Objetivo:\nDesenvolver a capacidade de identificar a posição de números naturais (unidades, dezenas e centenas) em retas numéricas com diferentes escalas.\n\n2) Habilidade: EF06MA01\n\n3) Aula do Material Digital: 07\n\n4) Questão/Cor da prova: 34/Roxa\n\n5) Desenvolvimento:\n5.1) Exploração: Iniciar com uma reta física (fita métrica ou desenhada no chão) para visualizar distâncias e intervalos.\n5.2) Desafio de Escala: Apresentar retas onde os intervalos variam (de 1 em 1, 10 em 10 e 100 em 100). Os alunos devem identificar o "passo" da reta antes de marcar o número solicitado.\n5.3) Atividade Prática: Localizar números específicos como 23, 150 e 487, justificando a posição entre quais dezenas ou centenas eles se encontram.\n\n6) Avaliação:\nObservação da precisão na localização dos pontos e resolução de situação-problema envolvendo estimativa de valores em pontos não numerados da reta.`; document.getElementById('iDescricao').value=modelo; atualizarContador(); }
+  planoForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('intervencaoId').value;
+    const dados = {
+      escola: document.getElementById('iEscola').value,
+      anoSerie: document.getElementById('iAno').value,
+      turma: document.getElementById('iTurma').value,
+      professor: document.getElementById('iProfessor').value,
+      disciplina: document.getElementById('iDisciplina').value,
+      descritor: document.getElementById('iDescritor').value,
+      aulaRelacionada: document.getElementById('iAula').value,
+      aprendizagemEssencial: document.getElementById('iAprendizagem').value,
+      dataInicio: document.getElementById('iDataInicio').value,
+      dataFim: document.getElementById('iDataFim').value,
+      descricao: document.getElementById('iDescricao').value,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if(new Date(dados.dataInicio) > new Date(dados.dataFim)) { showToast("Data de início > data de fim."); return; }
+    if(!dados.descricao.trim()) { showToast("Preencha a descrição."); return; }
+    try {
+      if(id) await db.collection('planos_intervencao').doc(id).update(dados);
+      else await db.collection('planos_intervencao').add(dados);
+      showToast(id ? "Plano atualizado!" : "Plano salvo!");
+      resetIntervencaoForm();
+      carregarPlanos();
+    } catch(err) { showToast("Erro: " + err.message); }
+  });
 
-  function switchTab(tabId) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active'); if(tabId==='dashboard') loadDashboard(); else if(tabId==='meta') { loadCRUD(); recarregarListaDescritores(); } else if(tabId==='intervencao') carregarPlanos(); }
-  function showToast(msg) { const t=document.getElementById('toast'); t.innerText=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
+  function resetIntervencaoForm() {
+    planoForm.reset();
+    document.getElementById('intervencaoId').value = "";
+    document.getElementById('iDescricao').value = "";
+    atualizarContador();
+  }
 
-  document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.getAttribute('data-tab'))));
-  document.getElementById('descritorEscola').addEventListener('change',carregarDescritor);
-  document.getElementById('descritorAno').addEventListener('change',carregarDescritor);
-  document.getElementById('descritorTurma').addEventListener('change',carregarDescritor);
-  document.getElementById('iDescricao').addEventListener('input',atualizarContador);
+  function atualizarContador() {
+    const textarea = document.getElementById('iDescricao');
+    const contador = document.getElementById('caracteresRestantes');
+    if(textarea && contador) contador.textContent = 1000 - textarea.value.length;
+  }
+
+  function inserirModeloDescricao() {
+    const modelo = `1) Objetivo:
+Desenvolver a capacidade de identificar a posição de números naturais (unidades, dezenas e centenas) em retas numéricas com diferentes escalas.
+
+2) Habilidade: EF06MA01
+
+3) Aula do Material Digital: 07
+
+4) Questão/Cor da prova: 34/Roxa
+
+5) Desenvolvimento:
+5.1) Exploração: Iniciar com uma reta física (fita métrica ou desenhada no chão) para visualizar distâncias e intervalos.
+5.2) Desafio de Escala: Apresentar retas onde os intervalos variam (de 1 em 1, 10 em 10 e 100 em 100). Os alunos devem identificar o "passo" da reta antes de marcar o número solicitado.
+5.3) Atividade Prática: Localizar números específicos como 23, 150 e 487, justificando a posição entre quais dezenas ou centenas eles se encontram.
+
+6) Avaliação:
+Observação da precisão na localização dos pontos e resolução de situação-problema envolvendo estimativa de valores em pontos não numerados da reta.`;
+    document.getElementById('iDescricao').value = modelo;
+    atualizarContador();
+  }
+
+  // ========== NAVEGAÇÃO ==========
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+    if(tabId === 'dashboard') loadDashboard();
+    else if(tabId === 'meta') { loadCRUD(); recarregarListaDescritores(); }
+    else if(tabId === 'intervencao') carregarPlanos();
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.innerText = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3000);
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
+  document.getElementById('descritorEscola').addEventListener('change', carregarDescritor);
+  document.getElementById('descritorAno').addEventListener('change', carregarDescritor);
+  document.getElementById('descritorTurma').addEventListener('change', carregarDescritor);
+  document.getElementById('iDescricao').addEventListener('input', atualizarContador);
+
   initDropdowns();
   loadCRUD();
   loadDashboard();
