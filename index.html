@@ -89,7 +89,7 @@
     <button class="tab-btn" data-tab="intervencao"><i class="fas fa-calendar-check"></i> Plano de Intervenção (Dia D)</button>
   </div>
 
-  <!-- DASHBOARD (idêntico ao anterior, omitido por brevidade, mas completo no código final) -->
+  <!-- DASHBOARD -->
   <div id="dashboard" class="tab-content active">
     <div class="info-box">
       <i class="fas fa-info-circle"></i> <strong>Referência de equivalência SEE-SP (3 níveis):</strong>
@@ -142,8 +142,9 @@
     </div>
   </div>
 
-  <!-- META-ANÁLISE COM FILTROS NA TABELA DE REGISTROS -->
+  <!-- META-ANÁLISE -->
   <div id="meta" class="tab-content">
+    <!-- Formulário de cadastro de estudante (conteúdo já existente) -->
     <div class="card">
       <h3 id="formTitle"><i class="fas fa-plus-circle"></i> Cadastro / Edição de Estudante</h3>
       <form id="studentForm" class="form-grid">
@@ -209,7 +210,7 @@
       </div>
     </div>
 
-    <!-- FILTROS PARA A TABELA DE REGISTROS (CRUD) -->
+    <!-- Filtros de registros (CRUD) -->
     <div class="card">
       <h3><i class="fas fa-filter"></i> Filtrar Registros de Estudantes</h3>
       <div class="filtro-card">
@@ -232,7 +233,7 @@
     </div>
   </div>
 
-  <!-- PLANO DE INTERVENÇÃO DIA D (com filtros já existentes) -->
+  <!-- PLANO DE INTERVENÇÃO DIA D COM PDF -->
   <div id="intervencao" class="tab-content">
     <div class="card">
       <h3><i class="fas fa-plus-circle"></i> Novo Plano de Intervenção</h3>
@@ -267,6 +268,7 @@
         <div style="grid-column: 1/-1; display: flex; gap: 12px; flex-wrap: wrap;">
           <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Plano</button>
           <button type="button" class="btn" style="background:#64748b" onclick="resetIntervencaoForm()"><i class="fas fa-eraser"></i> Limpar</button>
+          <button type="button" class="btn" style="background:#0f5c3e;" onclick="gerarPDFPlanoAtual()"><i class="fas fa-file-pdf"></i> Gerar PDF deste Plano</button>
         </div>
       </form>
     </div>
@@ -359,11 +361,9 @@
     fill('iEscola', escolasOficiais);
     fill('iAno', anosSeries);
     fill('iTurma', turmasLista);
-    // Filtros de registros (CRUD)
     fill('filtroRegistroEscola', ['', ...escolasOficiais]);
     fill('filtroRegistroAno', ['', ...anosSeries]);
     fill('filtroRegistroTurma', ['', ...turmasLista]);
-    // Filtros de planos
     fill('filtroPlanoEscola', ['', ...escolasOficiais]);
     fill('filtroPlanoAno', ['', ...anosSeries]);
     fill('filtroPlanoTurma', ['', ...turmasLista]);
@@ -384,7 +384,8 @@
   let chartStatusLP, chartStatusMT, chartMediaLP, chartMediaMT;
 
   async function loadDashboard() {
-    // (idêntico ao código anterior – mantido para não repetir)
+    // ... (mesmo código de antes, omitido por brevidade, mas completo no arquivo final)
+    // (Na versão final, este código será incluído integralmente)
     const esc = document.getElementById('filterEscola').value;
     const ano = document.getElementById('filterAno').value;
     const turma = document.getElementById('filterTurma').value;
@@ -469,8 +470,8 @@
     document.getElementById('melhoraAmbasList').innerHTML = melhoraAmbas.length ? melhoraAmbas.map(n => `<span class="student-tag">${n}</span>`).join('') : '<span style="color:#64748b">Nenhum estudante</span>';
   }
 
-  // CRUD Estudantes (com suporte a filtros)
-  let todosRegistros = []; // armazena todos os registros para filtro local
+  // ========== CRUD Estudantes ==========
+  let todosRegistros = [];
 
   async function loadCRUD() {
     const snap = await db.collection('ure_caieiras').orderBy('updatedAt', 'desc').get();
@@ -493,7 +494,7 @@
     });
     const tbody = document.getElementById('crudTableBody');
     if (registrosFiltrados.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10">Nenhum registro encontrado com os filtros selecionados.</td</tr>';
+      tbody.innerHTML = '<tr><td colspan="10">Nenhum registro encontrado.</td</tr>';
       return;
     }
     let html = '';
@@ -555,6 +556,7 @@
   }
 
   function resetForm() {
+    const form = document.getElementById('studentForm');
     form.reset(); 
     document.getElementById('docId').value = ""; 
     document.getElementById('formTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Novo Registro';
@@ -584,7 +586,7 @@
   }
   function limparCampoLote() { document.getElementById('bulkData').value = ""; document.getElementById('loteFeedback').innerHTML = ""; }
 
-  // ========== DESCRITOR (mesmo código) ==========
+  // ========== DESCRITOR ==========
   async function carregarDescritor() {
     const escola = document.getElementById('descritorEscola').value;
     const ano = document.getElementById('descritorAno').value;
@@ -691,13 +693,13 @@
       <div style="background:#fef9e3;padding:0.8rem;"><strong>📉 Descritor menor acerto:</strong> ${descritor}</div>
       <h3>Detalhamento</h3>
       <table><thead><tr><th>Estudante</th><th>ADD LP</th><th>Farol LP</th><th>PP LP%</th><th>ADD MT</th><th>Farol MT</th><th>PP MT%</th></tr></thead><tbody>
-        ${data.map(d => `<tr><td>${d.nome||'--'}</td><td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td><td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td><td>${d.ppLP??'-'}%</td—<td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td><td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td><td>${d.ppMT??'-'}%</td<tr>`).join('')}
-      </tbody></table><footer>URE-CAIEIRAS - ADD vs Prova Paulista 1º Bim</footer></body></html>
+        ${data.map(d => `<tr><td>${d.nome||'--'}</td><td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td><td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td><td>${d.ppLP??'-'}%</td—<td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td><td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td><td>${d.ppMT??'-'}%</td</td>`).join('')}
+      </tbody></tr><footer>URE-CAIEIRAS - ADD vs Prova Paulista 1º Bim</footer></body></html>
     `);
     win.document.close();
   }
 
-  // ========== PLANO DE INTERVENÇÃO (com filtros) ==========
+  // ========== PLANOS DE INTERVENÇÃO COM PDF ==========
   let todosPlanos = [];
 
   async function carregarPlanos() {
@@ -721,7 +723,7 @@
     });
     const tbody = document.getElementById('intervencaoTableBody');
     if (planosFiltrados.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8">Nenhum plano encontrado com os filtros selecionados.</td</tr>';
+      tbody.innerHTML = '<tr><td colspan="9">Nenhum plano encontrado.</td</tr>';
       return;
     }
     tbody.innerHTML = planosFiltrados.map(p => `
@@ -734,8 +736,9 @@
         <td>${p.descritor || ''}</td>
         <td>${p.dataInicio || ''} até ${p.dataFim || ''}</td>
         <td>
-          <button class="btn" onclick="editarPlano('${p.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i> Editar</button>
-          <button class="btn btn-del" onclick="excluirPlano('${p.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i> Excluir</button>
+          <button class="btn" onclick="editarPlano('${p.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-edit"></i> Editar</button>
+          <button class="btn btn-del" onclick="excluirPlano('${p.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-trash"></i> Excluir</button>
+          <button class="btn" style="background:#0f5c3e;" onclick="gerarPDFPlanoId('${p.id}')"><i class="fas fa-file-pdf"></i> PDF</button>
          </td
       </tr>
     `).join('');
@@ -771,6 +774,92 @@
     if(confirm("Excluir este plano?")) {
       db.collection('planos_intervencao').doc(id).delete().then(() => { showToast("Excluído!"); carregarPlanos(); });
     }
+  }
+
+  function gerarPDFPlanoId(id) {
+    const plano = todosPlanos.find(p => p.id === id);
+    if (plano) gerarPDF(plano);
+  }
+
+  function gerarPDFPlanoAtual() {
+    const id = document.getElementById('intervencaoId').value;
+    if (!id) {
+      // Se não há ID, pega os dados do formulário (novo plano ainda não salvo)
+      const dadosAtuais = {
+        escola: document.getElementById('iEscola').value,
+        anoSerie: document.getElementById('iAno').value,
+        turma: document.getElementById('iTurma').value,
+        professor: document.getElementById('iProfessor').value,
+        disciplina: document.getElementById('iDisciplina').value,
+        descritor: document.getElementById('iDescritor').value,
+        aulaRelacionada: document.getElementById('iAula').value,
+        aprendizagemEssencial: document.getElementById('iAprendizagem').value,
+        dataInicio: document.getElementById('iDataInicio').value,
+        dataFim: document.getElementById('iDataFim').value,
+        descricao: document.getElementById('iDescricao').value
+      };
+      if (!dadosAtuais.escola || !dadosAtuais.anoSerie || !dadosAtuais.turma || !dadosAtuais.professor || !dadosAtuais.disciplina || !dadosAtuais.descritor) {
+        showToast("Preencha os dados do plano antes de gerar o PDF.");
+        return;
+      }
+      gerarPDF(dadosAtuais);
+    } else {
+      const plano = todosPlanos.find(p => p.id === id);
+      if (plano) gerarPDF(plano);
+      else showToast("Plano não encontrado.");
+    }
+  }
+
+  function gerarPDF(plano) {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Plano de Intervenção - ${plano.escola} - ${plano.anoSerie} - ${plano.turma}</title>
+        <style>
+          body { font-family: 'Inter', sans-serif; padding: 2rem; background: white; color: #1e293b; }
+          .header { text-align: center; margin-bottom: 2rem; border-bottom: 2px solid #d32f2f; padding-bottom: 1rem; }
+          .header h1 { color: #0a2f6c; font-size: 1.8rem; }
+          .info { display: flex; justify-content: space-between; flex-wrap: wrap; background: #f1f5f9; padding: 1rem; border-radius: 16px; margin-bottom: 1.5rem; }
+          .info-item { margin: 0.25rem 0; }
+          .descricao { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1rem; margin-top: 1rem; white-space: pre-wrap; font-size: 0.9rem; line-height: 1.5; }
+          .footer { margin-top: 2rem; text-align: center; font-size: 0.7rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 1rem; }
+          @media print { body { padding: 0.5rem; } .no-print { display: none; } }
+        </style>
+      </head>
+      <body>
+        <div class="no-print" style="text-align: right; margin-bottom: 1rem;">
+          <button onclick="window.print()" style="padding:6px 12px; background:#0a2f6c; color:white; border:none; border-radius:20px;">🖨️ Imprimir / Salvar PDF</button>
+        </div>
+        <div class="header">
+          <h1>Plano de Intervenção Pedagógica - Dia D</h1>
+          <p>URE-CAIEIRAS | Avaliação Diagnóstica Digital vs Prova Paulista</p>
+        </div>
+        <div class="info">
+          <div><strong>Escola:</strong> ${plano.escola || ''}</div>
+          <div><strong>Ano/Série:</strong> ${plano.anoSerie || ''}</div>
+          <div><strong>Turma:</strong> ${plano.turma || ''}</div>
+          <div><strong>Professor:</strong> ${plano.professor || ''}</div>
+          <div><strong>Disciplina:</strong> ${plano.disciplina || ''}</div>
+          <div><strong>Descritor de menor acerto:</strong> ${plano.descritor || ''}</div>
+          <div><strong>Aula relacionada:</strong> ${plano.aulaRelacionada || ''}</div>
+          <div><strong>Aprendizagem essencial:</strong> ${plano.aprendizagemEssencial || ''}</div>
+          <div><strong>Período de execução:</strong> ${plano.dataInicio || ''} até ${plano.dataFim || ''}</div>
+          <div><strong>Data de emissão:</strong> ${new Date().toLocaleDateString()}</div>
+        </div>
+        <h3>Descritivo do Plano</h3>
+        <div class="descricao">${plano.descricao || ''}</div>
+        <div class="footer">
+          Sistema de Observação de Melhora Educacional - URE-CAIEIRAS<br>
+          Plano de Intervenção Dia D
+        </div>
+      </body>
+      </html>
+    `;
+    const win = window.open();
+    win.document.write(htmlContent);
+    win.document.close();
   }
 
   const intervencaoForm = document.getElementById('intervencaoForm');
