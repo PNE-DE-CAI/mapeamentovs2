@@ -59,6 +59,8 @@
     .student-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
     .student-tag { background: white; border-radius: 40px; padding: 0.2rem 0.8rem; font-size: 0.8rem; border: 1px solid #bbf7d0; color: #14532d; }
     .char-counter { text-align: right; font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+    .model-btn { margin-top: 8px; background: #2c5f8a; }
+    .filtro-card { background: #f1f5f9; border-radius: 24px; padding: 1rem; margin-bottom: 1rem; }
     @media (max-width: 700px) { .main-container { padding: 12px; } .tabs-nav { overflow-x: auto; flex-wrap: nowrap; } .tab-btn { white-space: nowrap; padding: 0.5rem 1rem; } .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
     @media print {
       body { background: white; padding: 0; margin: 0; }
@@ -87,7 +89,7 @@
     <button class="tab-btn" data-tab="intervencao"><i class="fas fa-calendar-check"></i> Plano de Intervenção (Dia D)</button>
   </div>
 
-  <!-- DASHBOARD -->
+  <!-- DASHBOARD (idêntico ao anterior, omitido por brevidade, mas completo no código final) -->
   <div id="dashboard" class="tab-content active">
     <div class="info-box">
       <i class="fas fa-info-circle"></i> <strong>Referência de equivalência SEE-SP (3 níveis):</strong>
@@ -140,7 +142,7 @@
     </div>
   </div>
 
-  <!-- META-ANÁLISE -->
+  <!-- META-ANÁLISE COM FILTROS NA TABELA DE REGISTROS -->
   <div id="meta" class="tab-content">
     <div class="card">
       <h3 id="formTitle"><i class="fas fa-plus-circle"></i> Cadastro / Edição de Estudante</h3>
@@ -207,13 +209,30 @@
       </div>
     </div>
 
+    <!-- FILTROS PARA A TABELA DE REGISTROS (CRUD) -->
     <div class="card">
+      <h3><i class="fas fa-filter"></i> Filtrar Registros de Estudantes</h3>
+      <div class="filtro-card">
+        <div class="form-grid">
+          <select id="filtroRegistroEscola" onchange="filtrarRegistros()"><option value="">Todas as Escolas</option></select>
+          <select id="filtroRegistroAno" onchange="filtrarRegistros()"><option value="">Todos os Anos</option></select>
+          <select id="filtroRegistroTurma" onchange="filtrarRegistros()"><option value="">Todas as Turmas</option></select>
+          <button class="btn" onclick="limparFiltrosRegistros()" style="background:#64748b;"><i class="fas fa-eraser"></i> Limpar Filtros</button>
+        </div>
+      </div>
       <h3><i class="fas fa-database"></i> Registros</h3>
-      <div style="overflow-x: auto;"></table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Estudante</th><th>ADD LP</th><th>ADD MT</th><th>PP LP%</th><th>PP MT%</th><th>Ações</th></tr></thead><tbody id="crudTableBody"></tbody></div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Estudante</th><th>ADD LP</th><th>ADD MT</th><th>PP LP%</th><th>PP MT%</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="crudTableBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- PLANO DE INTERVENÇÃO DIA D -->
+  <!-- PLANO DE INTERVENÇÃO DIA D (com filtros já existentes) -->
   <div id="intervencao" class="tab-content">
     <div class="card">
       <h3><i class="fas fa-plus-circle"></i> Novo Plano de Intervenção</h3>
@@ -233,8 +252,17 @@
         </div>
         <div style="grid-column: 1/-1;">
           <label>Descritivo do Plano (máx. 1000 caracteres):</label>
-          <textarea id="iDescricao" rows="4" maxlength="1000" placeholder="Descreva as estratégias, atividades, recursos..." required></textarea>
+          <textarea id="iDescricao" rows="10" maxlength="1000" placeholder="1) Objetivo:
+&#10;2) Habilidade: (ex: EF06MA01)
+&#10;3) Aula do Material Digital: (número)
+&#10;4) Questão/Cor da prova: (ex: 34/Roxa)
+&#10;5) Desenvolvimento:
+&#10;5.1) Exploração:
+&#10;5.2) Desafio de Escala:
+&#10;5.3) Atividade Prática:
+&#10;6) Avaliação:" required></textarea>
           <div class="char-counter"><span id="caracteresRestantes">1000</span> caracteres restantes</div>
+          <button type="button" class="btn model-btn" onclick="inserirModeloDescricao()" style="margin-top: 8px;"><i class="fas fa-file-alt"></i> Inserir Modelo</button>
         </div>
         <div style="grid-column: 1/-1; display: flex; gap: 12px; flex-wrap: wrap;">
           <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Plano</button>
@@ -242,9 +270,26 @@
         </div>
       </form>
     </div>
+
     <div class="card">
+      <h3><i class="fas fa-filter"></i> Filtrar Planos de Intervenção</h3>
+      <div class="filtro-card">
+        <div class="form-grid">
+          <select id="filtroPlanoEscola" onchange="filtrarPlanos()"><option value="">Todas as Escolas</option></select>
+          <select id="filtroPlanoAno" onchange="filtrarPlanos()"><option value="">Todos os Anos</option></select>
+          <select id="filtroPlanoTurma" onchange="filtrarPlanos()"><option value="">Todas as Turmas</option></select>
+          <button class="btn" onclick="limparFiltrosPlanos()" style="background:#64748b;"><i class="fas fa-eraser"></i> Limpar Filtros</button>
+        </div>
+      </div>
       <h3><i class="fas fa-list-alt"></i> Planos de Intervenção Cadastrados</h3>
-      <div style="overflow-x: auto;"><table><thead><tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Disciplina</th><th>Descritor</th><th>Período</th><th>Ações</th></tr></thead><tbody id="intervencaoTableBody"></tbody></div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Disciplina</th><th>Descritor</th><th>Período</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="intervencaoTableBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -314,6 +359,14 @@
     fill('iEscola', escolasOficiais);
     fill('iAno', anosSeries);
     fill('iTurma', turmasLista);
+    // Filtros de registros (CRUD)
+    fill('filtroRegistroEscola', ['', ...escolasOficiais]);
+    fill('filtroRegistroAno', ['', ...anosSeries]);
+    fill('filtroRegistroTurma', ['', ...turmasLista]);
+    // Filtros de planos
+    fill('filtroPlanoEscola', ['', ...escolasOficiais]);
+    fill('filtroPlanoAno', ['', ...anosSeries]);
+    fill('filtroPlanoTurma', ['', ...turmasLista]);
   }
 
   function getFarol(addStatus, ppPct) {
@@ -328,20 +381,18 @@
     return { cor: 'f-amarelo', texto: 'Estagnou' };
   }
 
-  // Gráficos globais
   let chartStatusLP, chartStatusMT, chartMediaLP, chartMediaMT;
 
   async function loadDashboard() {
+    // (idêntico ao código anterior – mantido para não repetir)
     const esc = document.getElementById('filterEscola').value;
     const ano = document.getElementById('filterAno').value;
     const turma = document.getElementById('filterTurma').value;
-    console.log("Filtros:", esc, ano, turma);
     let ref = db.collection('ure_caieiras');
     if(esc) ref = ref.where('escola', '==', esc);
     if(ano) ref = ref.where('anoSerie', '==', ano);
     if(turma) ref = ref.where('turma', '==', turma);
     const snap = await ref.get();
-    console.log("Documentos:", snap.size);
     const data = [];
     let abaixoCount = 0, melhoraTotal=0, estagTotal=0, pioraTotal=0, total=snap.size;
     snap.forEach(doc => {
@@ -371,11 +422,11 @@
         <td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td>
         <td>${d.addMTeq || '-'} <span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td>
         <td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td>
-        <td>${d.ppLP ?? '-'}%</td><td>${d.ppMT ?? '-'}%</td>
+        <td>${d.ppLP ?? '-'}%</td
+        <td>${d.ppMT ?? '-'}%</td
       </tr>
     `).join('');
 
-    // Contagem status
     const statusCountLP = { "Abaixo do Básico":0, "Básico":0, "Proficiente":0 };
     const statusCountMT = { "Abaixo do Básico":0, "Básico":0, "Proficiente":0 };
     data.forEach(d => {
@@ -383,13 +434,11 @@
       if(d.addMTstatus && statusCountMT[d.addMTstatus] !== undefined) statusCountMT[d.addMTstatus]++;
     });
 
-    // Destruir gráficos antigos
     if (chartStatusLP) chartStatusLP.destroy();
     if (chartStatusMT) chartStatusMT.destroy();
     if (chartMediaLP) chartMediaLP.destroy();
     if (chartMediaMT) chartMediaMT.destroy();
 
-    // Criar novos gráficos
     chartStatusLP = new Chart(document.getElementById('chartStatusLP'), {
       type: 'doughnut',
       data: { labels: Object.keys(statusCountLP), datasets: [{ data: Object.values(statusCountLP), backgroundColor: ['#ef4444','#eab308','#22c55e'] }] }
@@ -412,7 +461,6 @@
       options: { scales: { y: { max: 100, title: { display: true, text: 'Percentual (%)' } } } }
     });
 
-    // Listas de melhoria
     const melhoraLP = data.filter(d => d.farolLP.texto === 'Melhora').map(d => d.nome || '?');
     const melhoraMT = data.filter(d => d.farolMT.texto === 'Melhora').map(d => d.nome || '?');
     const melhoraAmbas = data.filter(d => d.farolLP.texto === 'Melhora' && d.farolMT.texto === 'Melhora').map(d => d.nome || '?');
@@ -421,54 +469,63 @@
     document.getElementById('melhoraAmbasList').innerHTML = melhoraAmbas.length ? melhoraAmbas.map(n => `<span class="student-tag">${n}</span>`).join('') : '<span style="color:#64748b">Nenhum estudante</span>';
   }
 
-  // CRUD Estudantes
-  const form = document.getElementById('studentForm');
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    const docId = document.getElementById('docId').value;
-    const payload = {
-      escola: document.getElementById('sEscola').value,
-      anoSerie: document.getElementById('sAno').value,
-      turma: document.getElementById('sTurma').value,
-      professor: document.getElementById('sProfessor').value,
-      nome: document.getElementById('sNome').value,
-      addLPeq: document.getElementById('sAddLPeq').value,
-      addLPstatus: document.getElementById('sAddLPstatus').value,
-      addMTeq: document.getElementById('sAddMTeq').value,
-      addMTstatus: document.getElementById('sAddMTstatus').value,
-      ppLP: document.getElementById('sPPLP').value,
-      ppMT: document.getElementById('sPPMT').value,
-      obs: document.getElementById('sObs').value,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    if(!payload.addLPstatus || !payload.addMTstatus) { showToast("Selecione os status de ADD."); return; }
-    try {
-      if(docId) await db.collection('ure_caieiras').doc(docId).update(payload);
-      else await db.collection('ure_caieiras').add(payload);
-      showToast("✅ Salvo!");
-      resetForm();
-      loadCRUD();
-      loadDashboard();
-    } catch(err) { showToast("❌ Erro: " + err.message); }
-  });
+  // CRUD Estudantes (com suporte a filtros)
+  let todosRegistros = []; // armazena todos os registros para filtro local
 
-  function loadCRUD() {
-    db.collection('ure_caieiras').orderBy('updatedAt','desc').limit(500).get().then(snap => {
-      const tbody = document.getElementById('crudTableBody');
-      tbody.innerHTML = snap.docs.map(doc => {
-        const d = doc.data();
-        const statusLPClass = `bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
-        const statusMTClass = `bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
-        return `<tr>
-          <td>${d.escola || ''}</td><td>${d.anoSerie || ''}</td><td>${d.turma || ''}</td><td>${d.professor || ''}</td>
-          <td>${d.nome || ''}</td><td class="badge ${statusLPClass}">${d.addLPstatus || '❓'}</td>
-          <td class="badge ${statusMTClass}">${d.addMTstatus || '❓'}</td>
-          <td>${d.ppLP || ''}%</td><td>${d.ppMT || ''}%</td>
-          <td><button class="btn" onclick="editDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-del" onclick="delDoc('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button></td>
-        </tr>`;
-      }).join('');
+  async function loadCRUD() {
+    const snap = await db.collection('ure_caieiras').orderBy('updatedAt', 'desc').get();
+    todosRegistros = [];
+    snap.forEach(doc => {
+      todosRegistros.push({ id: doc.id, ...doc.data() });
     });
+    filtrarRegistros();
+  }
+
+  function filtrarRegistros() {
+    const escolaFiltro = document.getElementById('filtroRegistroEscola').value;
+    const anoFiltro = document.getElementById('filtroRegistroAno').value;
+    const turmaFiltro = document.getElementById('filtroRegistroTurma').value;
+    const registrosFiltrados = todosRegistros.filter(r => {
+      if (escolaFiltro && r.escola !== escolaFiltro) return false;
+      if (anoFiltro && r.anoSerie !== anoFiltro) return false;
+      if (turmaFiltro && r.turma !== turmaFiltro) return false;
+      return true;
+    });
+    const tbody = document.getElementById('crudTableBody');
+    if (registrosFiltrados.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10">Nenhum registro encontrado com os filtros selecionados.</td</tr>';
+      return;
+    }
+    let html = '';
+    registrosFiltrados.forEach(r => {
+      const statusLPClass = `bg-${(r.addLPstatus || '').toLowerCase().replace(/ /g, '').replace('á', 'a').replace('ó', 'o').replace('ç', 'c')}`;
+      const statusMTClass = `bg-${(r.addMTstatus || '').toLowerCase().replace(/ /g, '').replace('á', 'a').replace('ó', 'o').replace('ç', 'c')}`;
+      html += `
+        <tr>
+          <td>${r.escola || ''}</td>
+          <td>${r.anoSerie || ''}</td>
+          <td>${r.turma || ''}</td>
+          <td>${r.professor || ''}</td>
+          <td>${r.nome || ''}</td>
+          <td class="badge ${statusLPClass}">${r.addLPstatus || '❓'}</td>
+          <td class="badge ${statusMTClass}">${r.addMTstatus || '❓'}</td>
+          <td>${r.ppLP || ''}%</td
+          <td>${r.ppMT || ''}%</td
+          <td>
+            <button class="btn" onclick="editDoc('${r.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-edit"></i> Editar</button>
+            <button class="btn btn-del" onclick="delDoc('${r.id}')" style="padding:4px 12px;"><i class="fas fa-trash"></i> Excluir</button>
+           </td
+        </tr>
+      `;
+    });
+    tbody.innerHTML = html;
+  }
+
+  function limparFiltrosRegistros() {
+    document.getElementById('filtroRegistroEscola').value = '';
+    document.getElementById('filtroRegistroAno').value = '';
+    document.getElementById('filtroRegistroTurma').value = '';
+    filtrarRegistros();
   }
 
   async function editDoc(id) {
@@ -487,7 +544,7 @@
     document.getElementById('sPPLP').value = d.ppLP || '';
     document.getElementById('sPPMT').value = d.ppMT || '';
     document.getElementById('sObs').value = d.obs || '';
-    document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Editando';
+    document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Editando Registro';
     window.scrollTo(0,0);
   }
 
@@ -527,7 +584,7 @@
   }
   function limparCampoLote() { document.getElementById('bulkData').value = ""; document.getElementById('loteFeedback').innerHTML = ""; }
 
-  // ========== DESCRITOR ==========
+  // ========== DESCRITOR (mesmo código) ==========
   async function carregarDescritor() {
     const escola = document.getElementById('descritorEscola').value;
     const ano = document.getElementById('descritorAno').value;
@@ -634,53 +691,61 @@
       <div style="background:#fef9e3;padding:0.8rem;"><strong>📉 Descritor menor acerto:</strong> ${descritor}</div>
       <h3>Detalhamento</h3>
       <table><thead><tr><th>Estudante</th><th>ADD LP</th><th>Farol LP</th><th>PP LP%</th><th>ADD MT</th><th>Farol MT</th><th>PP MT%</th></tr></thead><tbody>
-        ${data.map(d => `<tr><td>${d.nome||'--'}</td><td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td><td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td><td>${d.ppLP??'-'}%</td><td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td><td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td><td>${d.ppMT??'-'}%</td></tr>`).join('')}
+        ${data.map(d => `<tr><td>${d.nome||'--'}</td><td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td><td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td><td>${d.ppLP??'-'}%</td—<td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td><td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td><td>${d.ppMT??'-'}%</td<tr>`).join('')}
       </tbody></table><footer>URE-CAIEIRAS - ADD vs Prova Paulista 1º Bim</footer></body></html>
     `);
     win.document.close();
   }
 
-  // ========== PLANO DE INTERVENÇÃO ==========
-  const intervencaoForm = document.getElementById('intervencaoForm');
-  intervencaoForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('intervencaoId').value;
-    const dados = {
-      escola: document.getElementById('iEscola').value,
-      anoSerie: document.getElementById('iAno').value,
-      turma: document.getElementById('iTurma').value,
-      professor: document.getElementById('iProfessor').value,
-      disciplina: document.getElementById('iDisciplina').value,
-      descritor: document.getElementById('iDescritor').value,
-      aulaRelacionada: document.getElementById('iAula').value,
-      aprendizagemEssencial: document.getElementById('iAprendizagem').value,
-      dataInicio: document.getElementById('iDataInicio').value,
-      dataFim: document.getElementById('iDataFim').value,
-      descricao: document.getElementById('iDescricao').value,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    if (new Date(dados.dataInicio) > new Date(dados.dataFim)) { showToast("Data de início > data de fim."); return; }
-    try {
-      if (id) await db.collection('planos_intervencao').doc(id).update(dados);
-      else await db.collection('planos_intervencao').add(dados);
-      showToast(id ? "Plano atualizado!" : "Plano salvo!");
-      resetIntervencaoForm();
-      carregarPlanos();
-    } catch (err) { showToast("Erro: " + err.message); }
-  });
+  // ========== PLANO DE INTERVENÇÃO (com filtros) ==========
+  let todosPlanos = [];
 
   async function carregarPlanos() {
     const snap = await db.collection('planos_intervencao').orderBy('updatedAt', 'desc').get();
+    todosPlanos = [];
+    snap.forEach(doc => {
+      todosPlanos.push({ id: doc.id, ...doc.data() });
+    });
+    filtrarPlanos();
+  }
+
+  function filtrarPlanos() {
+    const escolaFiltro = document.getElementById('filtroPlanoEscola').value;
+    const anoFiltro = document.getElementById('filtroPlanoAno').value;
+    const turmaFiltro = document.getElementById('filtroPlanoTurma').value;
+    const planosFiltrados = todosPlanos.filter(p => {
+      if (escolaFiltro && p.escola !== escolaFiltro) return false;
+      if (anoFiltro && p.anoSerie !== anoFiltro) return false;
+      if (turmaFiltro && p.turma !== turmaFiltro) return false;
+      return true;
+    });
     const tbody = document.getElementById('intervencaoTableBody');
-    tbody.innerHTML = snap.docs.map(doc => {
-      const p = doc.data();
-      return `<tr>
-        <td>${p.escola || ''}</td><td>${p.anoSerie || ''}</td><td>${p.turma || ''}</td><td>${p.professor || ''}</td>
-        <td>${p.disciplina || ''}</td><td>${p.descritor || ''}</td><td>${p.dataInicio || ''} até ${p.dataFim || ''}</td>
-        <td><button class="btn" onclick="editarPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-del" onclick="excluirPlano('${doc.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i></button></td>
-      </tr>`;
-    }).join('');
+    if (planosFiltrados.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8">Nenhum plano encontrado com os filtros selecionados.</td</tr>';
+      return;
+    }
+    tbody.innerHTML = planosFiltrados.map(p => `
+      <tr>
+        <td>${p.escola || ''}</td>
+        <td>${p.anoSerie || ''}</td>
+        <td>${p.turma || ''}</td>
+        <td>${p.professor || ''}</td>
+        <td>${p.disciplina || ''}</td>
+        <td>${p.descritor || ''}</td>
+        <td>${p.dataInicio || ''} até ${p.dataFim || ''}</td>
+        <td>
+          <button class="btn" onclick="editarPlano('${p.id}')" style="padding:4px 12px"><i class="fas fa-edit"></i> Editar</button>
+          <button class="btn btn-del" onclick="excluirPlano('${p.id}')" style="padding:4px 12px"><i class="fas fa-trash"></i> Excluir</button>
+         </td
+      </tr>
+    `).join('');
+  }
+
+  function limparFiltrosPlanos() {
+    document.getElementById('filtroPlanoEscola').value = '';
+    document.getElementById('filtroPlanoAno').value = '';
+    document.getElementById('filtroPlanoTurma').value = '';
+    filtrarPlanos();
   }
 
   async function editarPlano(id) {
@@ -708,9 +773,39 @@
     }
   }
 
+  const intervencaoForm = document.getElementById('intervencaoForm');
+  intervencaoForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('intervencaoId').value;
+    const dados = {
+      escola: document.getElementById('iEscola').value,
+      anoSerie: document.getElementById('iAno').value,
+      turma: document.getElementById('iTurma').value,
+      professor: document.getElementById('iProfessor').value,
+      disciplina: document.getElementById('iDisciplina').value,
+      descritor: document.getElementById('iDescritor').value,
+      aulaRelacionada: document.getElementById('iAula').value,
+      aprendizagemEssencial: document.getElementById('iAprendizagem').value,
+      dataInicio: document.getElementById('iDataInicio').value,
+      dataFim: document.getElementById('iDataFim').value,
+      descricao: document.getElementById('iDescricao').value,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if (new Date(dados.dataInicio) > new Date(dados.dataFim)) { showToast("Data de início > data de fim."); return; }
+    if (!dados.descricao.trim()) { showToast("Preencha a descrição do plano."); return; }
+    try {
+      if (id) await db.collection('planos_intervencao').doc(id).update(dados);
+      else await db.collection('planos_intervencao').add(dados);
+      showToast(id ? "Plano atualizado!" : "Plano salvo!");
+      resetIntervencaoForm();
+      carregarPlanos();
+    } catch (err) { showToast("Erro: " + err.message); }
+  });
+
   function resetIntervencaoForm() {
     intervencaoForm.reset();
     document.getElementById('intervencaoId').value = "";
+    document.getElementById('iDescricao').value = "";
     atualizarContador();
   }
 
@@ -718,6 +813,28 @@
     const textarea = document.getElementById('iDescricao');
     const contador = document.getElementById('caracteresRestantes');
     if(textarea && contador) contador.textContent = 1000 - textarea.value.length;
+  }
+
+  function inserirModeloDescricao() {
+    const modelo = `1) Objetivo:
+Desenvolver a capacidade de identificar a posição de números naturais (unidades, dezenas e centenas) em retas numéricas com diferentes escalas.
+
+2) Habilidade: EF06MA01
+
+3) Aula do Material Digital: 07
+
+4) Questão/Cor da prova: 34/Roxa
+
+5) Desenvolvimento:
+5.1) Exploração: Iniciar com uma reta física (fita métrica ou desenhada no chão) para visualizar distâncias e intervalos.
+5.2) Desafio de Escala: Apresentar retas onde os intervalos variam (de 1 em 1, 10 em 10 e 100 em 100). Os alunos devem identificar o "passo" da reta antes de marcar o número solicitado.
+5.3) Atividade Prática: Localizar números específicos como 23, 150 e 487, justificando a posição entre quais dezenas ou centenas eles se encontram.
+
+6) Avaliação:
+Observação da precisão na localização dos pontos e resolução de situação-problema envolvendo estimativa de valores em pontos não numerados da reta.`;
+    const textarea = document.getElementById('iDescricao');
+    textarea.value = modelo;
+    atualizarContador();
   }
 
   // ========== NAVEGAÇÃO ==========
