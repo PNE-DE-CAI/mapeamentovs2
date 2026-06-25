@@ -3,289 +3,634 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>URE-CAIEIRAS | Observação de Melhora Educacional</title>
-  <!-- Firebase e Chart.js -->
+  <title>URE-CAIEIRAS | Dashboard Educacional</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(145deg, #0a2f6c 0%, #041a3a 100%); min-height: 100vh; padding: 20px; color: #1e293b; }
-    .main-container { max-width: 1400px; margin: 0 auto; background: #0f1a24; border-radius: 48px; padding: 20px; box-shadow: 0 30px 35px rgba(0,0,0,0.5), inset 0 1px 4px rgba(255,255,200,0.1); border: 1px solid #d32f2f; }
-    .header { display: flex; justify-content: space-between; align-items: center; background: rgba(10, 47, 108, 0.85); backdrop-filter: blur(4px); padding: 12px 24px; border-radius: 60px; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
-    .logo-area { display: flex; align-items: center; gap: 12px; }
-    .logo-area img { max-height: 50px; width: auto; background: white; border-radius: 12px; padding: 4px; }
-    .logo-area span { font-size: 1.2rem; font-weight: 600; color: #ffec9e; }
-    .title-badge { background: #d32f2f; color: white; padding: 6px 18px; border-radius: 3rem; font-weight: bold; letter-spacing: 1px; font-size: 0.9rem; }
-    .tabs-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1.8rem 0; background: rgba(255,255,255,0.05); padding: 0.8rem 1rem; border-radius: 60px; }
-    .tab-btn { background: transparent; border: none; padding: 0.7rem 1.4rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; border-radius: 40px; color: #e2e8f0; font-family: 'Inter', sans-serif; transition: 0.2s; }
-    .tab-btn i { margin-right: 8px; }
-    .tab-btn:hover { background: rgba(211, 47, 47, 0.3); color: white; }
-    .tab-btn.active { background: #d32f2f; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-    .tab-content { display: none; animation: fadeIn 0.3s ease; }
-    .tab-content.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
-    .card { background: white; border-radius: 32px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(0,0,0,0.2); border: 1px solid #e0e4e9; }
-    .info-box { background: #eef3fb; border-left: 5px solid #d32f2f; padding: 1rem 1.2rem; border-radius: 20px; margin: 1rem 0; }
-    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.8rem; }
-    .kpi { background: #f8fafc; border-radius: 20px; text-align: center; padding: 1rem; }
-    .kpi h3 { font-size: 0.9rem; color: #64748b; margin-bottom: 0.3rem; }
-    .kpi p { font-size: 1.8rem; font-weight: 800; color: #0a2f6c; margin: 0; }
-    .farol { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; }
-    .f-verde { background: #22c55e; }
-    .f-amarelo { background: #eab308; }
-    .f-vermelho { background: #ef4444; }
-    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.9rem; background: white; border-radius: 16px; overflow: hidden; }
-    th, td { padding: 0.7rem; border-bottom: 1px solid #e5e7eb; text-align: left; }
-    th { background: #0a2f6c; color: white; font-weight: 600; }
-    input, select, textarea { width: 100%; padding: 10px 12px; border-radius: 40px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: 'Inter', sans-serif; }
-    .btn { background: linear-gradient(135deg, #0a2f6c, #052050); color: white; border: none; border-radius: 60px; padding: 8px 20px; font-weight: 600; cursor: pointer; transition: 0.1s linear; display: inline-flex; align-items: center; gap: 6px; }
-    .btn:hover { background: #d32f2f; transform: translateY(-2px); }
-    .btn-del { background: #ef4444; }
-    .btn-del:hover { background: #b91c1c; }
-    .badge { padding: 0.2rem 0.6rem; border-radius: 30px; font-size: 0.7rem; font-weight: 600; color: white; }
-    .bg-abaixodobásico { background: #ef4444; }
-    .bg-básico { background: #eab308; color: #1f2937; }
-    .bg-proficiente { background: #22c55e; }
-    .toast { position: fixed; bottom: 20px; right: 20px; background: #1f2937; color: white; padding: 12px 20px; border-radius: 40px; display: none; z-index: 1000; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    footer { text-align: center; margin-top: 2rem; padding: 1rem; color: #b4c8e0; font-size: 0.8rem; border-top: 1px solid #2c4c6e; }
-    .improvement-section { background: #f0fdf4; border-radius: 24px; padding: 1rem; margin-top: 1rem; border-left: 6px solid #22c55e; }
-    .improvement-section h4 { margin-bottom: 0.5rem; color: #166534; }
-    .student-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
-    .student-tag { background: white; border-radius: 40px; padding: 0.2rem 0.8rem; font-size: 0.8rem; border: 1px solid #bbf7d0; color: #14532d; }
-    .char-counter { text-align: right; font-size: 0.75rem; color: #64748b; margin-top: 4px; }
-    .model-btn { margin-top: 8px; background: #2c5f8a; }
-    .filtro-card { background: #f1f5f9; border-radius: 24px; padding: 1rem; margin-bottom: 1rem; }
-    @media (max-width: 700px) { .main-container { padding: 12px; } .tabs-nav { overflow-x: auto; flex-wrap: nowrap; } .tab-btn { white-space: nowrap; padding: 0.5rem 1rem; } .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+    :root {
+      --bg-deep: #060b18;
+      --bg-card: #0c1527;
+      --bg-surface: #111d35;
+      --accent: #e8433e;
+      --accent-glow: rgba(232, 67, 62, 0.25);
+      --gold: #f0c754;
+      --gold-muted: rgba(240, 199, 84, 0.15);
+      --text-primary: #e8eaf0;
+      --text-muted: #7b8ba5;
+      --text-dim: #4a5a74;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --border: rgba(255,255,255,0.06);
+    }
+
+    body {
+      font-family: 'Source Serif 4', Georgia, serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 20%, rgba(232,67,62,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 80%, rgba(10,47,108,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(240,199,84,0.04) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1340px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .site-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .site-header .brand img {
+      height: 48px;
+      width: auto;
+      border-radius: 10px;
+      background: white;
+      padding: 3px;
+    }
+
+    .site-header .brand-text h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .site-header .brand-text span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .header-badge {
+      background: var(--accent);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.45rem 1.2rem;
+      border-radius: 100px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* ── LEGEND ── */
+    .legend-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 1rem 1.4rem;
+      margin-bottom: 2rem;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+    }
+
+    .legend-box strong { color: var(--gold); }
+    .legend-box ul { list-style: none; margin-top: 0.4rem; padding: 0; }
+    .legend-box li { margin-bottom: 0.2rem; }
+
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+    .dot-green { background: var(--green); }
+    .dot-yellow { background: var(--yellow); }
+    .dot-red { background: var(--red); }
+
+    /* ── FILTERS ── */
+    .filter-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .filter-bar .filter-input {
+      position: relative;
+    }
+
+    .filter-bar .filter-input i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.7rem 1rem 0.7rem 2.6rem;
+      font-family: 'Source Serif 4', serif;
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      transition: border-color 0.2s;
+    }
+
+    .filter-bar input::placeholder { color: var(--text-dim); }
+    .filter-bar input:focus { outline: none; border-color: var(--gold); }
+
+    /* ── KPI ROW ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.2rem 1.4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .kpi-card:nth-child(2) { animation-delay: 0.08s; }
+    .kpi-card:nth-child(3) { animation-delay: 0.16s; }
+    .kpi-card:nth-child(4) { animation-delay: 0.24s; }
+    .kpi-card:nth-child(5) { animation-delay: 0.32s; }
+    .kpi-card:nth-child(6) { animation-delay: 0.40s; }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      border-radius: 16px 16px 0 0;
+    }
+
+    .kpi-card .kpi-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .kpi-card .kpi-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .kpi-card .kpi-sub {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-top: 0.3rem;
+    }
+
+    /* ── CHARTS GRID ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+      animation-delay: 0.15s;
+    }
+
+    .chart-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chart-card h3 i {
+      color: var(--gold);
+      font-size: 0.9rem;
+    }
+
+    .chart-card canvas {
+      max-height: 240px;
+    }
+
+    /* ── IMPROVEMENT SECTION ── */
+    .improvement-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .improv-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.4rem;
+      border-left: 4px solid var(--green);
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+      animation-delay: 0.2s;
+    }
+
+    .improv-card.lp { border-left-color: var(--green); }
+    .improv-card.mt { border-left-color: var(--yellow); }
+    .improv-card.both { border-left-color: var(--accent); }
+
+    .improv-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 0.95rem;
+      font-weight: 400;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .improv-card h3 i { font-size: 0.85rem; color: var(--gold); }
+
+    .student-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .student-tag {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .empty-msg {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      font-style: italic;
+    }
+
+    /* ── TABLE ── */
+    .table-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+      animation-delay: 0.25s;
+    }
+
+    .table-section h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1rem;
+      font-weight: 400;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .table-section h3 i { color: var(--gold); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    thead th {
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.7rem;
+      padding: 0.7rem 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 0.65rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background: rgba(240,199,84,0.04);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 100px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+    .badge-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .badge-green { background: rgba(52,211,153,0.15); color: var(--green); }
+
+    .farol-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .farol-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .farol-yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+    .farol-red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      text-align: center;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .site-footer i { margin-right: 0.3rem; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.8rem 1.4rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 999;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    /* ── ANIMATION ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .page-wrapper { padding: 1rem; }
+      .site-header .brand-text h1 { font-size: 1.2rem; }
+      .kpi-card .kpi-value { font-size: 1.4rem; }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── PRINT ── */
     @media print {
-      body { background: white; padding: 0; margin: 0; }
-      .main-container { background: white; padding: 10px; box-shadow: none; border: none; }
-      .tabs-nav, .header .title-badge, .btn, footer, .toast, .info-box .btn, .form-grid .btn, .card .btn { display: none !important; }
-      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
-      .kpi { border: 1px solid #ddd; }
-      table { border: 1px solid #ccc; }
-      th { background: #e2e8f0; color: black; }
+      body { background: white; }
+      body::before, body::after { display: none; }
+      .page-wrapper { max-width: 100%; }
+      .chart-card, .table-section, .improv-card, .kpi-card {
+        border: 1px solid #ccc;
+        box-shadow: none;
+        opacity: 1;
+        animation: none;
+        break-inside: avoid;
+      }
+      thead th { background: #eee; color: #333; }
+      tbody td { color: #222; }
     }
   </style>
 </head>
 <body>
-<div class="main-container">
-  <div class="header">
-    <div class="logo-area">
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="brand">
       <img src="https://i.ibb.co/0p01LzxB/logo3de.jpg" alt="Logo SEDUC">
-      <span>URE-CAIEIRAS | Melhora Educacional</span>
-    </div>
-    <div class="title-badge"><i class="fas fa-chart-line"></i> ADD ↔ Prova Paulista 1° Bim</div>
-  </div>
-
-  <div class="tabs-nav">
-    <button class="tab-btn active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
-    <button class="tab-btn" data-tab="meta"><i class="fas fa-edit"></i> Meta-Análise</button>
-    <button class="tab-btn" data-tab="intervencao"><i class="fas fa-calendar-check"></i> Plano de Intervenção (Dia D)</button>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="tab-content active">
-    <div class="info-box">
-      <i class="fas fa-info-circle"></i> <strong>Referência de equivalência SEE-SP (3 níveis):</strong>
-      <ul style="margin: 0.5rem 0 0 1.2rem;">
-        <li><strong>Abaixo do Básico</strong> → desempenho muito baixo (ex: 6º ano ≈ 1º/2º ano do Fundamental; 1ª série EM ≈ abaixo do 6º ano; 3ª série EM ≈ abaixo da 1ª série).</li>
-        <li><strong>Básico</strong> → aprendizagem parcial, próximo ao esperado.</li>
-        <li><strong>Proficiente</strong> → domínio adequado da aprendizagem.</li>
-        <li><strong>Farol:</strong> 🟢 Melhora (ADD → PP evoluiu) &nbsp;|&nbsp; 🟡 Estagnou &nbsp;|&nbsp; 🔴 Piora</li>
-        <li><strong>Classificação da Prova Paulista:</strong> Abaixo &lt;35% | Básico 35% a 84% | Proficiente ≥85%</li>
-      </ul>
-    </div>
-    <div class="form-grid" style="margin-bottom: 1rem;">
-      <select id="filterEscola" onchange="loadDashboard()"><option value="">Todas as Escolas</option></select>
-      <select id="filterAno" onchange="loadDashboard()"><option value="">Todos os Anos/Séries</option></select>
-      <select id="filterTurma" onchange="loadDashboard()"><option value="">Todas as Turmas</option></select>
-    </div>
-    <div class="grid-4" id="kpiContainer">
-      <div class="kpi"><h3><i class="fas fa-users"></i> Total Alunos</h3><p id="kpiTotal">-</p></div>
-      <div class="kpi"><h3><i class="fas fa-exclamation-triangle"></i> Abaixo do Básico (ADD)</h3><p id="kpiAbaixo">-</p></div>
-      <div class="kpi"><h3><i class="fas fa-chart-simple"></i> Farol Evolução</h3><p id="kpiFarol">-</p></div>
-      <div class="kpi"><h3><i class="fas fa-school"></i> Perfil Turma</h3><p id="kpiPerfil">-</p></div>
-    </div>
-    <br>
-    <div class="grid-3">
-      <div class="card"><h3><i class="fas fa-chart-pie"></i> Distribuição Status ADD (LP)</h3><canvas id="chartStatusLP"></canvas></div>
-      <div class="card"><h3><i class="fas fa-chart-pie"></i> Distribuição Status ADD (MT)</h3><canvas id="chartStatusMT"></canvas></div>
-      <div class="card"><h3><i class="fas fa-chart-bar"></i> Média Prova Paulista (LP)</h3><canvas id="chartMediaLP"></canvas></div>
-      <div class="card"><h3><i class="fas fa-chart-bar"></i> Média Prova Paulista (MT)</h3><canvas id="chartMediaMT"></canvas></div>
-    </div>
-    <div class="card">
-      <h3><i class="fas fa-trophy"></i> Estudantes com Melhora por Disciplina</h3>
-      <div class="grid-3">
-        <div class="improvement-section" style="border-left-color: #22c55e;"><h4><i class="fas fa-book-open"></i> Melhora em LP</h4><div id="melhoraLPList" class="student-list">---</div></div>
-        <div class="improvement-section" style="border-left-color: #eab308;"><h4><i class="fas fa-calculator"></i> Melhora em MT</h4><div id="melhoraMTList" class="student-list">---</div></div>
-        <div class="improvement-section" style="border-left-color: #3b82f6;"><h4><i class="fas fa-star"></i> Melhora em Ambas</h4><div id="melhoraAmbasList" class="student-list">---</div></div>
+      <div class="brand-text">
+        <h1>URE-CAIEIRAS</h1>
+        <span>Observacao de Melhora Educacional</span>
       </div>
     </div>
-    <div class="card">
-      <h3><i class="fas fa-table-list"></i> Detalhamento Individual e Farol</h3>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead><tr><th>Escola / Turma</th><th>Estudante</th><th>Equiv. LP</th><th>Status ADD LP</th><th>Farol LP</th><th>Equiv. MT</th><th>Status ADD MT</th><th>Farol MT</th><th>PP LP%</th><th>PP MT%</th></tr></thead>
-          <tbody id="dashTableBody"></tbody>
-        </table>
-      </div>
+    <div class="header-badge">
+      <i class="fas fa-chart-line"></i>
+      ADD vs Prova Paulista &mdash; 1&ordm; Bim
+    </div>
+  </header>
+
+  <!-- LEGEND -->
+  <div class="legend-box">
+    <strong>Referencia de equivalencia SEE-SP (3 niveis):</strong>
+    <ul>
+      <li><strong>Abaixo do Basico</strong> &mdash; desempenho muito baixo (ex: 6&ordm; ano &asymp; 1&ordm;/2&ordm; ano do Fundamental; 1&ordf; serie EM &asymp; abaixo do 6&ordm; ano; 3&ordf; serie EM &asymp; abaixo da 1&ordf; serie).</li>
+      <li><strong>Basico</strong> &mdash; aprendizagem parcial, proximo ao esperado.</li>
+      <li><strong>Proficiente</strong> &mdash; dominio adequado da aprendizagem.</li>
+      <li>
+        <strong>Farol:</strong>
+        <span class="dot dot-green"></span> Melhora (ADD &rarr; PP evoluiu) &nbsp;|&nbsp;
+        <span class="dot dot-yellow"></span> Estagnou &nbsp;|&nbsp;
+        <span class="dot dot-red"></span> Piora
+      </li>
+      <li><strong>Classificacao da Prova Paulista:</strong> Abaixo &lt;35% &nbsp;|&nbsp; Basico 35% a 84% &nbsp;|&nbsp; Proficiente &ge;85%</li>
+    </ul>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <div class="filter-input">
+      <i class="fas fa-school"></i>
+      <input list="escolasList" id="filterEscola" placeholder="Filtrar por escola..." oninput="loadDashboard()">
+      <datalist id="escolasList"></datalist>
+    </div>
+    <div class="filter-input">
+      <i class="fas fa-layer-group"></i>
+      <input list="anosList" id="filterAno" placeholder="Filtrar por ano/serie..." oninput="loadDashboard()">
+      <datalist id="anosList"></datalist>
+    </div>
+    <div class="filter-input">
+      <i class="fas fa-users"></i>
+      <input list="turmasList" id="filterTurma" placeholder="Filtrar por turma..." oninput="loadDashboard()">
+      <datalist id="turmasList"></datalist>
     </div>
   </div>
 
-  <!-- META-ANÁLISE -->
-  <div id="meta" class="tab-content">
-    <div class="card">
-      <h3 id="formTitle"><i class="fas fa-plus-circle"></i> Cadastro / Edição de Estudante</h3>
-      <form id="studentForm" class="form-grid">
-        <input type="hidden" id="docId">
-        <select id="sEscola" required><option value="">Selecione a Escola</option></select>
-        <select id="sAno" required><option value="">Ano/Série</option></select>
-        <select id="sTurma" required><option value="">Turma</option></select>
-        <input type="text" id="sProfessor" placeholder="Professor" required>
-        <input type="text" id="sNome" placeholder="Nome do Estudante" required>
-        <input type="text" id="sAddLPeq" placeholder="Equivalência LP (ex: 1º ano)">
-        <select id="sAddLPstatus" required><option value="">Selecione o status LP</option><option>Abaixo do Básico</option><option>Básico</option><option>Proficiente</option></select>
-        <input type="text" id="sAddMTeq" placeholder="Equivalência MT (ex: 2º ano)">
-        <select id="sAddMTstatus" required><option value="">Selecione o status MT</option><option>Abaixo do Básico</option><option>Básico</option><option>Proficiente</option></select>
-        <input type="number" id="sPPLP" min="0" max="100" step="0.1" placeholder="Prova Paulista LP (%)">
-        <input type="number" id="sPPMT" min="0" max="100" step="0.1" placeholder="Prova Paulista MT (%)">
-        <textarea id="sObs" placeholder="Observações" rows="2"></textarea>
-        <div style="grid-column: 1/-1; display: flex; gap: 12px; flex-wrap: wrap;">
-          <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Registro</button>
-          <button type="button" class="btn" style="background:#64748b" onclick="resetForm()"><i class="fas fa-eraser"></i> Limpar</button>
-        </div>
-      </form>
+  <!-- KPIs -->
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi-card">
+      <div class="kpi-label">Total de Alunos</div>
+      <div class="kpi-value" id="kpiTotal">-</div>
     </div>
-
-    <div class="card">
-      <h3><i class="fas fa-cloud-upload-alt"></i> Inserção em Lote (CSV via texto)</h3>
-      <div style="margin-bottom: 1rem;">
-        <label>Cole os dados no formato CSV (sem cabeçalho):<br>
-        <small>Formato: escola,ano,turma,professor,nome,eqLP,statusLP,eqMT,statusMT,ppLP,ppMT,obs</small><br>
-        <small>statusLP/statusMT: "Abaixo do Básico", "Básico" ou "Proficiente"</small>
-        </label>
-        <textarea id="bulkData" rows="6" placeholder="JARDIM DAS ROSAS,6° Ano,A,Miro Carvalho,ALYCE VITORIA,,Abaixo do Básico,,Básico,45,30,&#10;AFONSO MORENO,1ª Série,B,Prof. Souza,Ana Costa,,Proficiente,,Proficiente,85,90,"></textarea>
-      </div>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button class="btn" onclick="inserirEmLote()"><i class="fas fa-database"></i> Inserir em Lote</button>
-        <button class="btn" style="background:#64748b;" onclick="limparCampoLote()"><i class="fas fa-trash-alt"></i> Limpar Campo</button>
-      </div>
-      <div id="loteFeedback" style="margin-top: 10px; font-size: 0.8rem; color: #2c5f8a;"></div>
+    <div class="kpi-card">
+      <div class="kpi-label">Abaixo Basico — LP</div>
+      <div class="kpi-value" id="kpiAbaixoLP">-</div>
+      <div class="kpi-sub" id="kpiAbaixoLPSub"></div>
     </div>
-
-    <div class="card">
-      <h3><i class="fas fa-chalkboard-user"></i> Descritor / Habilidade com menor índice de acerto (Prova Paulista 1° Bim)</h3>
-      <div class="form-grid" style="margin-top: 12px;">
-        <select id="descritorEscola" onchange="carregarDescritor()"><option value="">Todas as Escolas</option></select>
-        <select id="descritorAno" onchange="carregarDescritor()"><option value="">Todos os Anos</option></select>
-        <select id="descritorTurma" onchange="carregarDescritor()"><option value="">Todas as Turmas</option></select>
-        <textarea id="descritorTexto" rows="2" placeholder="Ex: D13 - Interpretar gráficos; Habilidade EF07MA33 - baixo desempenho"></textarea>
-        <div><button class="btn" onclick="salvarDescritor()"><i class="fas fa-save"></i> Salvar / Atualizar Descritor</button></div>
-      </div>
-      <div style="margin-top: 1rem;">
-        <label><strong><i class="fas fa-list"></i> Descritores já cadastrados (clique para editar):</strong></label>
-        <select id="listaDescritores" onchange="carregarDescritorPorSelecao()"><option value="">-- Selecione um descritor para editar --</option></select>
-        <button class="btn" style="background:#2c5f8a; margin-top: 8px;" onclick="recarregarListaDescritores()"><i class="fas fa-sync-alt"></i> Recarregar lista</button>
-      </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Abaixo Basico — MT</div>
+      <div class="kpi-value" id="kpiAbaixoMT">-</div>
+      <div class="kpi-sub" id="kpiAbaixoMTSub"></div>
     </div>
-
-    <div class="card">
-      <h3><i class="fas fa-print"></i> Gerar Boletim da Turma</h3>
-      <div class="form-grid">
-        <select id="boletimEscola" onchange="carregarDescritorBoletim()"><option value="">Selecione a Escola</option></select>
-        <select id="boletimAno" onchange="carregarDescritorBoletim()"><option value="">Selecione o Ano/Série</option></select>
-        <select id="boletimTurma" onchange="carregarDescritorBoletim()"><option value="">Selecione a Turma</option></select>
-        <button class="btn" onclick="gerarBoletim()" style="background:#0f5c3e;"><i class="fas fa-print"></i> Gerar Boletim (Turma filtrada)</button>
-      </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Farol LP</div>
+      <div class="kpi-value" id="kpiFarolLP" style="font-size:1rem;"></div>
     </div>
-
-    <!-- FILTROS PARA TABELA DE REGISTROS -->
-    <div class="card">
-      <h3><i class="fas fa-filter"></i> Filtrar Registros de Estudantes</h3>
-      <div class="filtro-card">
-        <div class="form-grid">
-          <select id="filtroRegistroEscola" onchange="filtrarRegistros()"><option value="">Todas as Escolas</option></select>
-          <select id="filtroRegistroAno" onchange="filtrarRegistros()"><option value="">Todos os Anos</option></select>
-          <select id="filtroRegistroTurma" onchange="filtrarRegistros()"><option value="">Todas as Turmas</option></select>
-          <button class="btn" onclick="limparFiltrosRegistros()" style="background:#64748b;"><i class="fas fa-eraser"></i> Limpar Filtros</button>
-        </div>
-      </div>
-      <h3><i class="fas fa-database"></i> Registros</h3>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Estudante</th><th>ADD LP</th><th>ADD MT</th><th>PP LP%</th><th>PP MT%</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="crudTableBody"></tbody>
-        </table>
-      </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Farol MT</div>
+      <div class="kpi-value" id="kpiFarolMT" style="font-size:1rem;"></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Perfil Turma</div>
+      <div class="kpi-value" id="kpiPerfil" style="font-size:0.9rem;"></div>
     </div>
   </div>
 
-  <!-- PLANO DE INTERVENÇÃO DIA D -->
-  <div id="intervencao" class="tab-content">
-    <div class="card">
-      <h3><i class="fas fa-plus-circle"></i> Novo Plano de Intervenção</h3>
-      <form id="intervencaoForm" class="form-grid">
-        <input type="hidden" id="intervencaoId">
-        <select id="iEscola" required><option value="">Selecione a Escola</option></select>
-        <select id="iAno" required><option value="">Selecione o Ano/Série</option></select>
-        <select id="iTurma" required><option value="">Selecione a Turma</option></select>
-        <input type="text" id="iProfessor" placeholder="Professor" required>
-        <select id="iDisciplina" required><option value="">Selecione a Disciplina</option><option>Língua Portuguesa</option><option>Matemática</option></select>
-        <input type="text" id="iDescritor" placeholder="Questão/Descritor de menor acerto" required>
-        <input type="text" id="iAula" placeholder="Aula relacionada com o menor índice de acerto" required>
-        <input type="text" id="iAprendizagem" placeholder="Aprendizagem essencial em foco dessa aula" required>
-        <div class="form-grid" style="grid-column: 1/-1;">
-          <label>Período previsto para execução (dia D):</label>
-          <div style="display: flex; gap: 10px;"><input type="date" id="iDataInicio" required style="flex:1"> <span>até</span> <input type="date" id="iDataFim" required style="flex:1"></div>
-        </div>
-        <div style="grid-column: 1/-1;">
-          <label>Descritivo do Plano (máx. 1000 caracteres):</label>
-          <textarea id="iDescricao" rows="10" maxlength="1000" placeholder="1) Objetivo:..."></textarea>
-          <div class="char-counter"><span id="caracteresRestantes">1000</span> caracteres restantes</div>
-          <button type="button" class="btn model-btn" onclick="inserirModeloDescricao()"><i class="fas fa-file-alt"></i> Inserir Modelo</button>
-        </div>
-        <div style="grid-column: 1/-1; display: flex; gap: 12px;">
-          <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Plano</button>
-          <button type="button" class="btn" style="background:#64748b" onclick="resetIntervencaoForm()"><i class="fas fa-eraser"></i> Limpar</button>
-        </div>
-      </form>
+  <!-- CHARTS -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3><i class="fas fa-chart-pie"></i> Distribuicao Status ADD — LP</h3>
+      <canvas id="chartStatusLP"></canvas>
     </div>
-
-    <div class="card">
-      <h3><i class="fas fa-filter"></i> Filtrar Planos de Intervenção</h3>
-      <div class="filtro-card">
-        <div class="form-grid">
-          <select id="filtroPlanoEscola" onchange="filtrarPlanos()"><option value="">Todas as Escolas</option></select>
-          <select id="filtroPlanoAno" onchange="filtrarPlanos()"><option value="">Todos os Anos</option></select>
-          <select id="filtroPlanoTurma" onchange="filtrarPlanos()"><option value="">Todas as Turmas</option></select>
-          <button class="btn" onclick="limparFiltrosPlanos()" style="background:#64748b;"><i class="fas fa-eraser"></i> Limpar Filtros</button>
-        </div>
-      </div>
-      <h3><i class="fas fa-list-alt"></i> Planos de Intervenção Cadastrados</h3>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr><th>Escola</th><th>Ano</th><th>Turma</th><th>Professor</th><th>Disciplina</th><th>Descritor</th><th>Período</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="intervencaoTableBody"></tbody>
-        </table>
-      </div>
+    <div class="chart-card">
+      <h3><i class="fas fa-chart-pie"></i> Distribuicao Status ADD — MT</h3>
+      <canvas id="chartStatusMT"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3><i class="fas fa-chart-bar"></i> Media Prova Paulista — LP</h3>
+      <canvas id="chartMediaLP"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3><i class="fas fa-chart-bar"></i> Media Prova Paulista — MT</h3>
+      <canvas id="chartMediaMT"></canvas>
     </div>
   </div>
 
-  <footer><i class="fas fa-university"></i> URE-CAIEIRAS | Sistema de Observação de Melhora Educacional - ADD x Prova Paulista 1° Bim</footer>
+  <!-- IMPROVEMENT -->
+  <div class="improvement-row">
+    <div class="improv-card lp">
+      <h3><i class="fas fa-book-open"></i> Melhora em LP</h3>
+      <div class="student-tags" id="melhoraLPList"></div>
+    </div>
+    <div class="improv-card mt">
+      <h3><i class="fas fa-calculator"></i> Melhora em MT</h3>
+      <div class="student-tags" id="melhoraMTList"></div>
+    </div>
+    <div class="improv-card both">
+      <h3><i class="fas fa-star"></i> Melhora em Ambas</h3>
+      <div class="student-tags" id="melhoraAmbasList"></div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-section">
+    <h3><i class="fas fa-table-list"></i> Detalhamento Individual e Farol</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Escola / Turma</th>
+            <th>Estudante</th>
+            <th>Equiv. LP</th>
+            <th>Status ADD LP</th>
+            <th>Farol LP</th>
+            <th>Equiv. MT</th>
+            <th>Status ADD MT</th>
+            <th>Farol MT</th>
+            <th>PP LP%</th>
+            <th>PP MT%</th>
+          </tr>
+        </thead>
+        <tbody id="dashTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <i class="fas fa-university"></i> URE-CAIEIRAS | Sistema de Observacao de Melhora Educacional &mdash; ADD x Prova Paulista 1&ordm; Bim
+  </footer>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+  // ── FIREBASE ──
   const firebaseConfig = {
     apiKey: "AIzaSyBrjM1C840QnWGQIrInvCAjnNBQuSVqy78",
     authDomain: "financeiroescola-587af.firebaseapp.com",
@@ -297,635 +642,57 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // Listas oficiais
   const escolasOficiais = [
-    "ADAIL JARBAS DUCLOS", "AFONSO MORENO", "ALADINO POLON", "ALBERTO GRAF CAPITAO",
-    "ALBINO FIORE", "ALFRIED THEODOR WEISZFLOG", "ANA MARIA GARRIDO ORLANDIN PROFA",
-    "APARECIDO ROBERTO TONELLOTTI PROFESSOR", "ARMANDO SESTINI", "ARTHUR WEINGRILL",
-    "AZEVEDO SOARES", "BAIRRO DO ITAIM", "BAIRRO JUNDIAIZINHO", "BELEM DA SERRA",
-    "BENEDITO APARECIDO TAVARES PROF", "BENEDITO FAGUNDES MARQUES", "BUENO DE AZEVEDO FILHO PROF",
-    "CARLOS AUGUSTO DE PADUA FLEURY PROF", "CELESTINA VALENTE LENGENFELDER PROFA",
-    "CHACARA CAMPONESA JARDIM VASSOURAS", "DOMINGOS CAMBIAGHI PROF", "DR. MARIO TOLEDO DE MORAES",
-    "DR. NELSON MANZANARES", "ELCIO JOSE PEREIRA COTRIM PROF", "ELVIRA PARADA MANGA PROFA",
-    "FRANCISCO GONCALVES VIEIRA PROF", "HERMELINA DE ALBUQUERQUE PASSARELLA PROFA",
-    "IRACI SARTORI VIEIRA DA SILVA PROFA", "ISAIAS LUIZ MATIAZZO", "ISAURA DE MIRANDA BOTTO PROFA",
-    "ISAURA VALENTINI HANSER PROFA", "IVONE DOS ANJOS DA SILVA CAMPOS PROFA", "JARDIM ALEGRIA II",
-    "JARDIM DAS ROSAS", "JARDIM SAO FRANCISCO", "JARDIM SILVIA II", "JOAQUIM MARQUES DA SILVA SOBRINHO TTE",
-    "JOCIMARA VIEIRA DA SILVA PROFA", "JOSE CARLOS DA SILVA JUNIOR", "JOSE DE BARROS MARTINS EDITOR",
-    "JOSE PARADA PROFESSOR", "JOSE ROBERTO MELCHIOR DR", "KATIA MARIA TARIFA LEME TONELLI PROFA",
-    "LENITA CORREA CAMARGO PROFA", "LUIZ ALEXANDRE DOS SANTOS VEREADOR", "LYDIA SCALET WALKER PROFA",
-    "MARIA ZEZA GOMES DE OLIVEIRA", "NAIR HANNICKEL ROMARO", "NIDE ZAIM CARDOSO PROFA",
-    "ODARICO OLIVEIRA NASCIMENTO PROF", "OLINDO DARTORA DR", "OTTO WEISZFLOG", "OZILDE ALBUQUERQUE PASSARELLA DR",
-    "PARQUE CENTO E VINTE II", "PAULO DUARTE", "PEDRO GALRAO DO NASCIMENTO", "PEDRO LELIS DE SOUZA PREFEITO",
-    "PEDRO PAULO DE AGUIAR", "PIETRO PETRI", "RITUCO MITANI PROFA", "ROGERIO LEVORIN PROF", "SUZANA DIAS",
-    "ULYSSES SANCHES RAMIRES PROF", "VINCENZO LOBASSI", "WALTER RIBAS DE ANDRADE PROF EE", "WALTHER WEISZFLOG",
+    "ADAIL JARBAS DUCLOS","AFONSO MORENO","ALADINO POLON","ALBERTO GRAF CAPITAO",
+    "ALBINO FIORE","ALFRIED THEODOR WEISZFLOG","ANA MARIA GARRIDO ORLANDIN PROFA",
+    "APARECIDO ROBERTO TONELLOTTI PROFESSOR","ARMANDO SESTINI","ARTHUR WEINGRILL",
+    "AZEVEDO SOARES","BAIRRO DO ITAIM","BAIRRO JUNDIAIZINHO","BELEM DA SERRA",
+    "BENEDITO APARECIDO TAVARES PROF","BENEDITO FAGUNDES MARQUES","BUENO DE AZEVEDO FILHO PROF",
+    "CARLOS AUGUSTO DE PADUA FLEURY PROF","CELESTINA VALENTINE LENGENFELDER PROFA",
+    "CHACARA CAMPONESA JARDIM VASSOURAS","DOMINGOS CAMBIAGHI PROF","DR. MARIO TOLEDO DE MORAES",
+    "DR. NELSON MANZANARES","ELCIO JOSE PEREIRA COTRIM PROF","ELVIRA PARADA MANGA PROFA",
+    "FRANCISCO GONCALVES VIEIRA PROF","HERMELINA DE ALBUQUERQUE PASSARELLA PROFA",
+    "IRACI SARTORI VIEIRA DA SILVA PROFA","ISAIAS LUIZ MATIAZZO","ISAURA DE MIRANDA BOTTO PROFA",
+    "ISAURA VALENTINI HANSER PROFA","IVONE DOS ANJOS DA SILVA CAMPOS PROFA","JARDIM ALEGRIA II",
+    "JARDIM DAS ROSAS","JARDIM SAO FRANCISCO","JARDIM SILVIA II","JOAQUIM MARQUES DA SILVA SOBRINHO TTE",
+    "JOCIMARA VIEIRA DA SILVA PROFA","JOSE CARLOS DA SILVA JUNIOR","JOSE DE BARROS MARTINS EDITOR",
+    "JOSE PARADA PROFESSOR","JOSE ROBERTO MELCHIOR DR","KATIA MARIA TARIFA LEME TONELLI PROFA",
+    "LENITA CORREA CAMARGO PROFA","LUIZ ALEXANDRE DOS SANTOS VEREADOR","LYDIA SCALET WALKER PROFA",
+    "MARIA ZEZA GOMES DE OLIVEIRA","NAIR HANNICKEL ROMARO","NIDE ZAIM CARDOSO PROFA",
+    "ODARICO OLIVEIRA NASCIMENTO PROF","OLINDO DARTORA DR","OTTO WEISZFLOG","OZILDE ALBUQUERQUE PASSARELLA DR",
+    "PARQUE CENTO E VINTE II","PAULO DUARTE","PEDRO GALRAO DO NASCIMENTO","PEDRO LELIS DE SOUZA PREFEITO",
+    "PEDRO PAULO DE AGUIAR","PIETRO PETRI","RITUCO MITANI PROFA","ROGERIO LEVORIN PROF","SUZANA DIAS",
+    "ULYSSES SANCHES RAMIRES PROF","VINCENZO LOBASSI","WALTER RIBAS DE ANDRADE PROF EE","WALTHER WEISZFLOG",
     "ZILTON BICUDO PROF"
   ];
-  const anosSeries = ["5° Ano","6° Ano","7° Ano","8° Ano","9° Ano","1ª Série","2ª Série","3ª Série"];
+  const anosSeries = ["5\u00b0 Ano","6\u00b0 Ano","7\u00b0 Ano","8\u00b0 Ano","9\u00b0 Ano","1\u00aa S\u00e9rie","2\u00aa S\u00e9rie","3\u00aa S\u00e9rie"];
   const turmasLista = ["A","B","C","D","E","F","G","H"];
 
-  function initDropdowns() {
-    const fill = (id, arr, addEmpty=true) => {
-      const s = document.getElementById(id);
-      if(!s) return;
-      s.innerHTML = addEmpty ? '<option value="">Selecione</option>' : '';
-      arr.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`);
-    };
-    fill('sEscola', escolasOficiais);
-    fill('filterEscola', ['', ...escolasOficiais]);
-    fill('sAno', anosSeries);
-    fill('filterAno', ['', ...anosSeries]);
-    fill('sTurma', turmasLista);
-    fill('filterTurma', ['', ...turmasLista]);
-    fill('descritorEscola', ['', ...escolasOficiais]);
-    fill('descritorAno', ['', ...anosSeries]);
-    fill('descritorTurma', ['', ...turmasLista]);
-    fill('boletimEscola', escolasOficiais);
-    fill('boletimAno', anosSeries);
-    fill('boletimTurma', turmasLista);
-    fill('iEscola', escolasOficiais);
-    fill('iAno', anosSeries);
-    fill('iTurma', turmasLista);
-    fill('filtroRegistroEscola', ['', ...escolasOficiais]);
-    fill('filtroRegistroAno', ['', ...anosSeries]);
-    fill('filtroRegistroTurma', ['', ...turmasLista]);
-    fill('filtroPlanoEscola', ['', ...escolasOficiais]);
-    fill('filtroPlanoAno', ['', ...anosSeries]);
-    fill('filtroPlanoTurma', ['', ...turmasLista]);
+  // ── HELPERS ──
+  function normalizeString(str) {
+    return str.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
-
+  function matchesFilter(valor, filtro) {
+    if (!filtro) return true;
+    return normalizeString(valor).includes(normalizeString(filtro));
+  }
   function getFarol(addStatus, ppPct) {
-    if(!addStatus || ppPct === null || ppPct === undefined || ppPct === "") return { cor: 'gray', texto: 'S/D' };
+    if (!addStatus || ppPct === null || ppPct === undefined || ppPct === "") return { cor: 'gray', texto: 'S/D' };
     ppPct = parseFloat(ppPct);
-    const ordem = ["Abaixo do Básico", "Básico", "Proficiente"];
+    const ordem = ["Abaixo do B\u00e1sico", "B\u00e1sico", "Proficiente"];
     let idxEsperado = ordem.indexOf(addStatus);
-    if(idxEsperado === -1) idxEsperado = 0;
+    if (idxEsperado === -1) idxEsperado = 0;
     let idxReal = ppPct < 35 ? 0 : ppPct < 85 ? 1 : 2;
-    if(idxReal > idxEsperado) return { cor: 'f-verde', texto: 'Melhora' };
-    if(idxReal < idxEsperado) return { cor: 'f-vermelho', texto: 'Piora' };
-    return { cor: 'f-amarelo', texto: 'Estagnou' };
+    if (idxReal > idxEsperado) return { cor: 'farol-green', texto: 'Melhora' };
+    if (idxReal < idxEsperado) return { cor: 'farol-red', texto: 'Piora' };
+    return { cor: 'farol-yellow', texto: 'Estagnou' };
   }
-
-  let chartStatusLP, chartStatusMT, chartMediaLP, chartMediaMT;
-
-  async function loadDashboard() {
-    const esc = document.getElementById('filterEscola').value;
-    const ano = document.getElementById('filterAno').value;
-    const turma = document.getElementById('filterTurma').value;
-    let ref = db.collection('ure_caieiras');
-    if(esc) ref = ref.where('escola', '==', esc);
-    if(ano) ref = ref.where('anoSerie', '==', ano);
-    if(turma) ref = ref.where('turma', '==', turma);
-    const snap = await ref.get();
-    const data = [];
-    let abaixoCount = 0, melhoraTotal = 0, estagTotal = 0, pioraTotal = 0, total = snap.size;
-    snap.forEach(doc => {
-      const d = doc.data();
-      const flp = getFarol(d.addLPstatus, d.ppLP);
-      const fmt = getFarol(d.addMTstatus, d.ppMT);
-      d.farolLP = flp; d.farolMT = fmt;
-      data.push(d);
-      if(d.addLPstatus === "Abaixo do Básico" || d.addMTstatus === "Abaixo do Básico") abaixoCount++;
-      if(flp.texto === 'Melhora' || fmt.texto === 'Melhora') melhoraTotal++;
-      else if(flp.texto === 'Piora' || fmt.texto === 'Piora') pioraTotal++;
-      else if(flp.texto !== 'S/D') estagTotal++;
-    });
-    const perfil = abaixoCount > (total * 0.5) ? "⚠️ Crítico (>50% abaixo)" : "✅ Estável (<50% abaixo)";
-    document.getElementById('kpiTotal').innerText = total;
-    document.getElementById('kpiAbaixo').innerHTML = `${abaixoCount} (${total?Math.round((abaixoCount/total)*100):0}%)`;
-    document.getElementById('kpiFarol').innerHTML = `<span class="farol f-verde"></span>${melhoraTotal} <span class="farol f-amarelo"></span>${estagTotal} <span class="farol f-vermelho"></span>${pioraTotal}`;
-    document.getElementById('kpiPerfil').innerHTML = perfil;
-    document.getElementById('kpiPerfil').style.color = perfil.includes('Crítico') ? '#ef4444' : '#22c55e';
-
-    const tbody = document.getElementById('dashTableBody');
-    tbody.innerHTML = data.map(d => `
-      <tr>
-        <td>${d.escola}<br><small>${d.anoSerie} - ${d.turma}</small></td>
-        <td>${d.nome || '--'}</td>
-        <td>${d.addLPeq || '-'} <span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td>
-        <td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td>
-        <td>${d.addMTeq || '-'} <span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td>
-        <td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td>
-        <td>${d.ppLP ?? '-'}%</td>
-        <td>${d.ppMT ?? '-'}%</td>
-      </tr>
-    `).join('');
-
-    const statusCountLP = { "Abaixo do Básico":0, "Básico":0, "Proficiente":0 };
-    const statusCountMT = { "Abaixo do Básico":0, "Básico":0, "Proficiente":0 };
-    data.forEach(d => {
-      if(d.addLPstatus && statusCountLP[d.addLPstatus] !== undefined) statusCountLP[d.addLPstatus]++;
-      if(d.addMTstatus && statusCountMT[d.addMTstatus] !== undefined) statusCountMT[d.addMTstatus]++;
-    });
-
-    if (chartStatusLP) chartStatusLP.destroy();
-    if (chartStatusMT) chartStatusMT.destroy();
-    if (chartMediaLP) chartMediaLP.destroy();
-    if (chartMediaMT) chartMediaMT.destroy();
-
-    chartStatusLP = new Chart(document.getElementById('chartStatusLP'), {
-      type: 'doughnut',
-      data: { labels: Object.keys(statusCountLP), datasets: [{ data: Object.values(statusCountLP), backgroundColor: ['#ef4444','#eab308','#22c55e'] }] }
-    });
-    chartStatusMT = new Chart(document.getElementById('chartStatusMT'), {
-      type: 'doughnut',
-      data: { labels: Object.keys(statusCountMT), datasets: [{ data: Object.values(statusCountMT), backgroundColor: ['#ef4444','#eab308','#22c55e'] }] }
-    });
-
-    const mediaLP = data.reduce((acc,d)=>acc+(parseFloat(d.ppLP)||0),0)/(data.length||1);
-    const mediaMT = data.reduce((acc,d)=>acc+(parseFloat(d.ppMT)||0),0)/(data.length||1);
-    chartMediaLP = new Chart(document.getElementById('chartMediaLP'), {
-      type: 'bar',
-      data: { labels: ['LP'], datasets: [{ label: '% Acertos', data: [mediaLP], backgroundColor: '#1a56db' }] },
-      options: { scales: { y: { max: 100, title: { display: true, text: 'Percentual (%)' } } } }
-    });
-    chartMediaMT = new Chart(document.getElementById('chartMediaMT'), {
-      type: 'bar',
-      data: { labels: ['MT'], datasets: [{ label: '% Acertos', data: [mediaMT], backgroundColor: '#f59e0b' }] },
-      options: { scales: { y: { max: 100, title: { display: true, text: 'Percentual (%)' } } } }
-    });
-
-    const melhoraLP = data.filter(d => d.farolLP.texto === 'Melhora').map(d => d.nome || '?');
-    const melhoraMT = data.filter(d => d.farolMT.texto === 'Melhora').map(d => d.nome || '?');
-    const melhoraAmbas = data.filter(d => d.farolLP.texto === 'Melhora' && d.farolMT.texto === 'Melhora').map(d => d.nome || '?');
-    document.getElementById('melhoraLPList').innerHTML = melhoraLP.length ? melhoraLP.map(n => `<span class="student-tag">${n}</span>`).join('') : '<span style="color:#64748b">Nenhum estudante</span>';
-    document.getElementById('melhoraMTList').innerHTML = melhoraMT.length ? melhoraMT.map(n => `<span class="student-tag">${n}</span>`).join('') : '<span style="color:#64748b">Nenhum estudante</span>';
-    document.getElementById('melhoraAmbasList').innerHTML = melhoraAmbas.length ? melhoraAmbas.map(n => `<span class="student-tag">${n}</span>`).join('') : '<span style="color:#64748b">Nenhum estudante</span>';
+  function badgeClass(status) {
+    if (!status) return 'badge-red';
+    if (status.includes('Abaixo')) return 'badge-red';
+    if (status.includes('Proficiente')) return 'badge-green';
+    return 'badge-yellow';
   }
-
-  // ========== CRUD ESTUDANTES ==========
-  let todosRegistros = [];
-
-  async function loadCRUD() {
-    const snap = await db.collection('ure_caieiras').orderBy('updatedAt', 'desc').get();
-    todosRegistros = [];
-    snap.forEach(doc => { todosRegistros.push({ id: doc.id, ...doc.data() }); });
-    filtrarRegistros();
-  }
-
-  function filtrarRegistros() {
-    const escola = document.getElementById('filtroRegistroEscola').value;
-    const ano = document.getElementById('filtroRegistroAno').value;
-    const turma = document.getElementById('filtroRegistroTurma').value;
-    const filtrados = todosRegistros.filter(r => {
-      if(escola && r.escola !== escola) return false;
-      if(ano && r.anoSerie !== ano) return false;
-      if(turma && r.turma !== turma) return false;
-      return true;
-    });
-    const tbody = document.getElementById('crudTableBody');
-    if(filtrados.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10">Nenhum registro encontrado.</td></tr>';
-      return;
-    }
-    let html = '';
-    filtrados.forEach(r => {
-      const lpClass = `bg-${(r.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
-      const mtClass = `bg-${(r.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}`;
-      html += `
-        <tr>
-          <td>${r.escola || ''}</td>
-          <td>${r.anoSerie || ''}</td>
-          <td>${r.turma || ''}</td>
-          <td>${r.professor || ''}</td>
-          <td>${r.nome || ''}</td>
-          <td class="badge ${lpClass}">${r.addLPstatus || '❓'}</td>
-          <td class="badge ${mtClass}">${r.addMTstatus || '❓'}</td>
-          <td>${r.ppLP || ''}%</td>
-          <td>${r.ppMT || ''}%</td>
-          <td>
-            <button class="btn" onclick="editDoc('${r.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-edit"></i> Editar</button>
-            
-          </td>
-        </tr>
-      `;
-    });
-    tbody.innerHTML = html;
-  }
-
-  function limparFiltrosRegistros() {
-    document.getElementById('filtroRegistroEscola').value = '';
-    document.getElementById('filtroRegistroAno').value = '';
-    document.getElementById('filtroRegistroTurma').value = '';
-    filtrarRegistros();
-  }
-
-  const studentForm = document.getElementById('studentForm');
-  studentForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('docId').value;
-    const payload = {
-      escola: document.getElementById('sEscola').value,
-      anoSerie: document.getElementById('sAno').value,
-      turma: document.getElementById('sTurma').value,
-      professor: document.getElementById('sProfessor').value,
-      nome: document.getElementById('sNome').value,
-      addLPeq: document.getElementById('sAddLPeq').value,
-      addLPstatus: document.getElementById('sAddLPstatus').value,
-      addMTeq: document.getElementById('sAddMTeq').value,
-      addMTstatus: document.getElementById('sAddMTstatus').value,
-      ppLP: document.getElementById('sPPLP').value,
-      ppMT: document.getElementById('sPPMT').value,
-      obs: document.getElementById('sObs').value,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    if(!payload.addLPstatus || !payload.addMTstatus) { showToast("Selecione os status de ADD."); return; }
-    try {
-      if(id) await db.collection('ure_caieiras').doc(id).update(payload);
-      else await db.collection('ure_caieiras').add(payload);
-      showToast(id ? "✅ Atualizado!" : "✅ Salvo!");
-      resetForm();
-      await loadCRUD();
-      await loadDashboard();
-    } catch(err) { showToast("❌ Erro: " + err.message); }
-  });
-
-  async function editDoc(id) {
-    const snap = await db.collection('ure_caieiras').doc(id).get();
-    const d = snap.data();
-    document.getElementById('docId').value = id;
-    document.getElementById('sEscola').value = d.escola || '';
-    document.getElementById('sAno').value = d.anoSerie || '';
-    document.getElementById('sTurma').value = d.turma || '';
-    document.getElementById('sProfessor').value = d.professor || '';
-    document.getElementById('sNome').value = d.nome || '';
-    document.getElementById('sAddLPeq').value = d.addLPeq || '';
-    document.getElementById('sAddLPstatus').value = d.addLPstatus || '';
-    document.getElementById('sAddMTeq').value = d.addMTeq || '';
-    document.getElementById('sAddMTstatus').value = d.addMTstatus || '';
-    document.getElementById('sPPLP').value = d.ppLP || '';
-    document.getElementById('sPPMT').value = d.ppMT || '';
-    document.getElementById('sObs').value = d.obs || '';
-    document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Editando Registro';
-    window.scrollTo(0,0);
-  }
-
-  function delDoc(id) {
-    if(confirm("Excluir permanentemente?")) {
-      db.collection('ure_caieiras').doc(id).delete().then(() => { showToast("🗑️ Excluído!"); loadCRUD(); loadDashboard(); });
-    }
-  }
-
-  function resetForm() {
-    studentForm.reset();
-    document.getElementById('docId').value = "";
-    document.getElementById('formTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Novo Registro';
-  }
-
-  async function inserirEmLote() {
-    const raw = document.getElementById('bulkData').value;
-    if(!raw.trim()) { showToast("Cole os dados."); return; }
-    const lines = raw.split(/\r?\n/).filter(l => l.trim() !== "");
-    let success = 0, error = 0;
-    for(let line of lines) {
-      const cols = line.split(',').map(c => c.trim());
-      if(cols.length < 12) { error++; continue; }
-      const [escola, anoSerie, turma, professor, nome, eqLP, statusLP, eqMT, statusMT, ppLP, ppMT, obs] = cols;
-      if(!statusLP || !statusMT) { error++; continue; }
-      if(!["Abaixo do Básico","Básico","Proficiente"].includes(statusLP) || !["Abaixo do Básico","Básico","Proficiente"].includes(statusMT)) { error++; continue; }
-      try {
-        await db.collection('ure_caieiras').add({ escola, anoSerie, turma, professor, nome, addLPeq: eqLP, addLPstatus: statusLP, addMTeq: eqMT, addMTstatus: statusMT, ppLP, ppMT, obs, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        success++;
-      } catch(e) { error++; }
-    }
-    document.getElementById('loteFeedback').innerHTML = `✅ ${success} inseridos, ❌ ${error} com erro.`;
-    showToast(`${success} inseridos.`);
-    await loadCRUD();
-    await loadDashboard();
-    if(success > 0) document.getElementById('bulkData').value = "";
-  }
-
-  function limparCampoLote() { document.getElementById('bulkData').value = ""; document.getElementById('loteFeedback').innerHTML = ""; }
-
-  // ========== DESCRITOR ==========
-  async function carregarDescritor() {
-    const e = document.getElementById('descritorEscola').value;
-    const a = document.getElementById('descritorAno').value;
-    const t = document.getElementById('descritorTurma').value;
-    if(!e || !a || !t) { document.getElementById('descritorTexto').value = ''; return; }
-    const key = `${e}|${a}|${t}`;
-    const doc = await db.collection('descritores_prova_paulista').doc(key).get();
-    document.getElementById('descritorTexto').value = doc.exists ? doc.data().texto : '';
-  }
-
-  async function salvarDescritor() {
-    const e = document.getElementById('descritorEscola').value;
-    const a = document.getElementById('descritorAno').value;
-    const t = document.getElementById('descritorTurma').value;
-    const texto = document.getElementById('descritorTexto').value;
-    if(!e || !a || !t) { showToast("Selecione escola, ano e turma."); return; }
-    const key = `${e}|${a}|${t}`;
-    await db.collection('descritores_prova_paulista').doc(key).set({ texto, escola:e, ano:a, turma:t, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    showToast("Descritor salvo!");
-    recarregarListaDescritores();
-  }
-
-  async function recarregarListaDescritores() {
-    const snap = await db.collection('descritores_prova_paulista').get();
-    const select = document.getElementById('listaDescritores');
-    select.innerHTML = '<option value="">-- Selecione um descritor para editar --</option>';
-    snap.forEach(doc => {
-      const data = doc.data();
-      const opt = document.createElement('option');
-      opt.value = doc.id;
-      opt.textContent = `${data.escola} | ${data.ano} | ${data.turma}`;
-      opt.setAttribute('data-escola', data.escola);
-      opt.setAttribute('data-ano', data.ano);
-      opt.setAttribute('data-turma', data.turma);
-      opt.setAttribute('data-texto', data.texto);
-      select.appendChild(opt);
-    });
-  }
-
-  function carregarDescritorPorSelecao() {
-    const select = document.getElementById('listaDescritores');
-    const opt = select.options[select.selectedIndex];
-    if(!opt.value) return;
-    document.getElementById('descritorEscola').value = opt.getAttribute('data-escola');
-    document.getElementById('descritorAno').value = opt.getAttribute('data-ano');
-    document.getElementById('descritorTurma').value = opt.getAttribute('data-turma');
-    document.getElementById('descritorTexto').value = opt.getAttribute('data-texto') || '';
-    carregarDescritor();
-  }
-
-  // ========== BOLETIM ==========
-  let descritorBoletimGlobal = "";
-  async function carregarDescritorBoletim() {
-    const e = document.getElementById('boletimEscola').value;
-    const a = document.getElementById('boletimAno').value;
-    const t = document.getElementById('boletimTurma').value;
-    if(!e || !a || !t) { descritorBoletimGlobal = ""; return; }
-    const key = `${e}|${a}|${t}`;
-    const doc = await db.collection('descritores_prova_paulista').doc(key).get();
-    descritorBoletimGlobal = doc.exists ? doc.data().texto : "Não registrado";
-  }
-
-  async function gerarBoletim() {
-    const esc = document.getElementById('boletimEscola').value;
-    const ano = document.getElementById('boletimAno').value;
-    const turma = document.getElementById('boletimTurma').value;
-    if(!esc || !ano || !turma) { showToast("Selecione escola, ano e turma."); return; }
-    await carregarDescritorBoletim();
-    const snap = await db.collection('ure_caieiras').where('escola','==',esc).where('anoSerie','==',ano).where('turma','==',turma).get();
-    const data = [];
-    let total = snap.size, abaixo = 0, melhora = 0, estag = 0, piora = 0;
-    snap.forEach(doc => {
-      const d = doc.data();
-      const flp = getFarol(d.addLPstatus, d.ppLP);
-      const fmt = getFarol(d.addMTstatus, d.ppMT);
-      d.farolLP = flp; d.farolMT = fmt;
-      data.push(d);
-      if(d.addLPstatus === "Abaixo do Básico" || d.addMTstatus === "Abaixo do Básico") abaixo++;
-      if(flp.texto === 'Melhora' || fmt.texto === 'Melhora') melhora++;
-      else if(flp.texto === 'Piora' || fmt.texto === 'Piora') piora++;
-      else if(flp.texto !== 'S/D') estag++;
-    });
-    const perfil = abaixo > (total * 0.5) ? "Crítico (>50% abaixo)" : "Estável (<50% abaixo)";
-    const win = window.open();
-    win.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="UTF-8"><title>Boletim - ${esc} - ${ano} - Turma ${turma}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-      <style>
-        body{font-family:'Inter',sans-serif;padding:2rem;}
-        .header{text-align:center;border-bottom:2px solid #d32f2f;}
-        .kpi-grid{display:flex;flex-wrap:wrap;gap:1rem;margin:1rem 0;}
-        .kpi-card{background:#f8fafc;border-radius:20px;padding:1rem;text-align:center;flex:1;}
-        table{width:100%;border-collapse:collapse;}
-        th{background:#0a2f6c;color:white;padding:0.5rem;}
-        td{padding:0.5rem;border-bottom:1px solid #ccc;}
-        .badge{padding:0.2rem 0.5rem;border-radius:20px;color:white;display:inline-block;}
-        .bg-abaixodobásico{background:#ef4444;}
-        .bg-básico{background:#eab308;color:#1f2937;}
-        .bg-proficiente{background:#22c55e;}
-        .farol{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;}
-        .f-verde{background:#22c55e;}.f-amarelo{background:#eab308;}.f-vermelho{background:#ef4444;}
-      </style>
-      </head>
-      <body>
-        <div class="header"><h1>URE-CAIEIRAS - Boletim</h1><p>ADD vs Prova Paulista (1º Bim)</p></div>
-        <div><strong>Escola:</strong> ${esc} | <strong>Ano:</strong> ${ano} | <strong>Turma:</strong> ${turma} | <strong>Data:</strong> ${new Date().toLocaleDateString()}</div>
-        <div class="kpi-grid">
-          <div class="kpi-card">Total: ${total}</div>
-          <div class="kpi-card">Abaixo ADD: ${abaixo} (${Math.round(abaixo/total*100)||0}%)</div>
-          <div class="kpi-card">Farol: 🟢${melhora} 🟡${estag} 🔴${piora}</div>
-          <div class="kpi-card">Perfil: ${perfil}</div>
-        </div>
-        <div style="background:#fef9e3;padding:0.8rem;"><strong>📉 Descritor menor acerto:</strong> ${descritorBoletimGlobal}</div>
-        <h3>Detalhamento</h3>
-        <table>
-          <thead><tr><th>Estudante</th><th>ADD LP</th><th>Farol LP</th><th>PP LP%</th><th>ADD MT</th><th>Farol MT</th><th>PP MT%</th></tr></thead>
-          <tbody>${data.map(d => `
-            <tr>
-              <td>${d.nome||'--'}</td>
-              <td><span class="badge bg-${(d.addLPstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addLPstatus||'?'}</span></td>
-              <td><span class="farol ${d.farolLP.cor}"></span> ${d.farolLP.texto}</td>
-              <td>${d.ppLP??'-'}%</td>
-              <td><span class="badge bg-${(d.addMTstatus||'').toLowerCase().replace(/ /g,'').replace('á','a').replace('ó','o').replace('ç','c')}">${d.addMTstatus||'?'}</span></td>
-              <td><span class="farol ${d.farolMT.cor}"></span> ${d.farolMT.texto}</td>
-              <td>${d.ppMT??'-'}%</td>
-            </tr>
-          `).join('')}</tbody>
-        </table>
-        <footer style="margin-top:2rem;text-align:center;">URE-CAIEIRAS - ADD vs Prova Paulista 1º Bim</footer>
-      </body>
-      </html>
-    `);
-    win.document.close();
-  }
-
-  // ========== PLANOS DE INTERVENÇÃO ==========
-  let todosPlanos = [];
-
-  async function carregarPlanos() {
-    const snap = await db.collection('planos_intervencao').orderBy('updatedAt','desc').get();
-    todosPlanos = [];
-    snap.forEach(doc => { todosPlanos.push({ id: doc.id, ...doc.data() }); });
-    filtrarPlanos();
-  }
-
-  function filtrarPlanos() {
-    const e = document.getElementById('filtroPlanoEscola').value;
-    const a = document.getElementById('filtroPlanoAno').value;
-    const t = document.getElementById('filtroPlanoTurma').value;
-    const filtrados = todosPlanos.filter(p => {
-      if(e && p.escola !== e) return false;
-      if(a && p.anoSerie !== a) return false;
-      if(t && p.turma !== t) return false;
-      return true;
-    });
-    const tbody = document.getElementById('intervencaoTableBody');
-    if(filtrados.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8">Nenhum plano encontrado.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = filtrados.map(p => `
-      <tr>
-        <td>${p.escola || ''}</td>
-        <td>${p.anoSerie || ''}</td>
-        <td>${p.turma || ''}</td>
-        <td>${p.professor || ''}</td>
-        <td>${p.disciplina || ''}</td>
-        <td>${p.descritor || ''}</td>
-        <td>${p.dataInicio || ''} até ${p.dataFim || ''}</td>
-        <td>
-          <button class="btn" onclick="editarPlano('${p.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-edit"></i> Editar</button>
-          <button class="btn btn-del" onclick="excluirPlano('${p.id}')" style="padding:4px 12px; margin-right:6px;"><i class="fas fa-trash"></i> Excluir</button>
-          <button class="btn" onclick="gerarPDFPlano('${p.id}')" style="background:#2c5f8a; padding:4px 12px;"><i class="fas fa-file-pdf"></i> PDF</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  function limparFiltrosPlanos() {
-    document.getElementById('filtroPlanoEscola').value = '';
-    document.getElementById('filtroPlanoAno').value = '';
-    document.getElementById('filtroPlanoTurma').value = '';
-    filtrarPlanos();
-  }
-
-  async function editarPlano(id) {
-    const doc = await db.collection('planos_intervencao').doc(id).get();
-    const p = doc.data();
-    document.getElementById('intervencaoId').value = id;
-    document.getElementById('iEscola').value = p.escola || '';
-    document.getElementById('iAno').value = p.anoSerie || '';
-    document.getElementById('iTurma').value = p.turma || '';
-    document.getElementById('iProfessor').value = p.professor || '';
-    document.getElementById('iDisciplina').value = p.disciplina || '';
-    document.getElementById('iDescritor').value = p.descritor || '';
-    document.getElementById('iAula').value = p.aulaRelacionada || '';
-    document.getElementById('iAprendizagem').value = p.aprendizagemEssencial || '';
-    document.getElementById('iDataInicio').value = p.dataInicio || '';
-    document.getElementById('iDataFim').value = p.dataFim || '';
-    document.getElementById('iDescricao').value = p.descricao || '';
-    atualizarContador();
-    window.scrollTo(0,0);
-  }
-
-  function excluirPlano(id) {
-    if(confirm("Excluir este plano?")) {
-      db.collection('planos_intervencao').doc(id).delete().then(() => { showToast("Excluído!"); carregarPlanos(); });
-    }
-  }
-
-  async function gerarPDFPlano(id) {
-    const doc = await db.collection('planos_intervencao').doc(id).get();
-    const p = doc.data();
-    const win = window.open();
-    win.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="UTF-8"><title>Plano de Intervenção - ${p.escola} - ${p.anoSerie} - ${p.turma}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-      <style>
-        body{font-family:'Inter',sans-serif;padding:2rem;}
-        .header{text-align:center;border-bottom:2px solid #d32f2f;margin-bottom:2rem;}
-        .info{background:#f1f5f9;padding:1rem;border-radius:16px;margin-bottom:1.5rem;}
-        .field{margin-bottom:0.8rem;}
-        .label{font-weight:600;color:#0a2f6c;}
-        .content{white-space:pre-wrap;background:#fefce8;padding:1rem;border-radius:16px;}
-        footer{margin-top:2rem;text-align:center;font-size:0.8rem;color:#64748b;}
-      </style>
-      </head>
-      <body>
-        <div class="header"><h1>URE-CAIEIRAS - Plano de Intervenção (Dia D)</h1><p>ADD vs Prova Paulista 1º Bimestre</p></div>
-        <div class="info">
-          <div class="field"><span class="label">Escola:</span> ${p.escola||''}</div>
-          <div class="field"><span class="label">Ano/Série:</span> ${p.anoSerie||''}</div>
-          <div class="field"><span class="label">Turma:</span> ${p.turma||''}</div>
-          <div class="field"><span class="label">Professor:</span> ${p.professor||''}</div>
-          <div class="field"><span class="label">Disciplina:</span> ${p.disciplina||''}</div>
-          <div class="field"><span class="label">Descritor de menor acerto:</span> ${p.descritor||''}</div>
-          <div class="field"><span class="label">Aula relacionada:</span> ${p.aulaRelacionada||''}</div>
-          <div class="field"><span class="label">Aprendizagem essencial:</span> ${p.aprendizagemEssencial||''}</div>
-          <div class="field"><span class="label">Período de execução:</span> ${p.dataInicio||''} até ${p.dataFim||''}</div>
-        </div>
-        <div class="field"><span class="label">Descrição do Plano:</span></div>
-        <div class="content">${p.descricao||''}</div>
-        <footer>Documento gerado pelo Sistema URE-CAIEIRAS em ${new Date().toLocaleString()}</footer>
-      </body>
-      </html>
-    `);
-    win.document.close();
-    win.print();
-  }
-
-  const planoForm = document.getElementById('intervencaoForm');
-  planoForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('intervencaoId').value;
-    const dados = {
-      escola: document.getElementById('iEscola').value,
-      anoSerie: document.getElementById('iAno').value,
-      turma: document.getElementById('iTurma').value,
-      professor: document.getElementById('iProfessor').value,
-      disciplina: document.getElementById('iDisciplina').value,
-      descritor: document.getElementById('iDescritor').value,
-      aulaRelacionada: document.getElementById('iAula').value,
-      aprendizagemEssencial: document.getElementById('iAprendizagem').value,
-      dataInicio: document.getElementById('iDataInicio').value,
-      dataFim: document.getElementById('iDataFim').value,
-      descricao: document.getElementById('iDescricao').value,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    if(new Date(dados.dataInicio) > new Date(dados.dataFim)) { showToast("Data de início > data de fim."); return; }
-    if(!dados.descricao.trim()) { showToast("Preencha a descrição."); return; }
-    try {
-      if(id) await db.collection('planos_intervencao').doc(id).update(dados);
-      else await db.collection('planos_intervencao').add(dados);
-      showToast(id ? "Plano atualizado!" : "Plano salvo!");
-      resetIntervencaoForm();
-      carregarPlanos();
-    } catch(err) { showToast("Erro: " + err.message); }
-  });
-
-  function resetIntervencaoForm() {
-    planoForm.reset();
-    document.getElementById('intervencaoId').value = "";
-    document.getElementById('iDescricao').value = "";
-    atualizarContador();
-  }
-
-  function atualizarContador() {
-    const textarea = document.getElementById('iDescricao');
-    const contador = document.getElementById('caracteresRestantes');
-    if(textarea && contador) contador.textContent = 1000 - textarea.value.length;
-  }
-
-  function inserirModeloDescricao() {
-    const modelo = `1) Objetivo:
-Desenvolver a capacidade de identificar a posição de números naturais (unidades, dezenas e centenas) em retas numéricas com diferentes escalas.
-
-2) Habilidade: EF06MA01
-
-3) Aula do Material Digital: 07
-
-4) Questão/Cor da prova: 34/Roxa
-
-5) Desenvolvimento:
-5.1) Exploração: Iniciar com uma reta física (fita métrica ou desenhada no chão) para visualizar distâncias e intervalos.
-5.2) Desafio de Escala: Apresentar retas onde os intervalos variam (de 1 em 1, 10 em 10 e 100 em 100). Os alunos devem identificar o "passo" da reta antes de marcar o número solicitado.
-5.3) Atividade Prática: Localizar números específicos como 23, 150 e 487, justificando a posição entre quais dezenas ou centenas eles se encontram.
-
-6) Avaliação:
-Observação da precisão na localização dos pontos e resolução de situação-problema envolvendo estimativa de valores em pontos não numerados da reta.`;
-    document.getElementById('iDescricao').value = modelo;
-    atualizarContador();
-  }
-
-  // ========== NAVEGAÇÃO ==========
-  function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
-    if(tabId === 'dashboard') loadDashboard();
-    else if(tabId === 'meta') { loadCRUD(); recarregarListaDescritores(); }
-    else if(tabId === 'intervencao') carregarPlanos();
-  }
-
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.innerText = msg;
@@ -933,17 +700,179 @@ Observação da precisão na localização dos pontos e resolução de situaçã
     setTimeout(() => t.style.display = 'none', 3000);
   }
 
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
-  document.getElementById('descritorEscola').addEventListener('change', carregarDescritor);
-  document.getElementById('descritorAno').addEventListener('change', carregarDescritor);
-  document.getElementById('descritorTurma').addEventListener('change', carregarDescritor);
-  document.getElementById('iDescricao').addEventListener('input', atualizarContador);
+  // ── POPULATE DATALISTS ──
+  function populateDatalists() {
+    const elEscolas = document.getElementById('escolasList');
+    elEscolas.innerHTML = escolasOficiais.map(v => `<option value="${v}">`).join('');
+    const elAnos = document.getElementById('anosList');
+    elAnos.innerHTML = anosSeries.map(v => `<option value="${v}">`).join('');
+    const elTurmas = document.getElementById('turmasList');
+    elTurmas.innerHTML = turmasLista.map(v => `<option value="${v}">`).join('');
+  }
 
-  initDropdowns();
-  loadCRUD();
+  // ── CHARTS STORE ──
+  let charts = {};
+
+  // ── DASHBOARD ──
+  async function loadDashboard() {
+    const escolaFiltro = document.getElementById('filterEscola').value;
+    const anoFiltro = document.getElementById('filterAno').value;
+    const turmaFiltro = document.getElementById('filterTurma').value;
+
+    const snap = await db.collection('ure_caieiras').get();
+    const data = [];
+
+    snap.forEach(doc => {
+      const d = doc.data();
+      if (escolaFiltro && !matchesFilter(d.escola, escolaFiltro)) return;
+      if (anoFiltro && !matchesFilter(d.anoSerie, anoFiltro)) return;
+      if (turmaFiltro && !matchesFilter(d.turma, turmaFiltro)) return;
+      const flp = getFarol(d.addLPstatus, d.ppLP);
+      const fmt = getFarol(d.addMTstatus, d.ppMT);
+      d.farolLP = flp;
+      d.farolMT = fmt;
+      data.push(d);
+    });
+
+    // KPIs
+    const total = data.length;
+    let abaixoLP = 0, abaixoMT = 0;
+    let melhoraLP = 0, estagnouLP = 0, pioraLP = 0;
+    let melhoraMT = 0, estagnouMT = 0, pioraMT = 0;
+
+    data.forEach(d => {
+      if (d.addLPstatus === "Abaixo do B\u00e1sico") abaixoLP++;
+      if (d.addMTstatus === "Abaixo do B\u00e1sico") abaixoMT++;
+      if (d.farolLP.texto === 'Melhora') melhoraLP++;
+      else if (d.farolLP.texto === 'Estagnou') estagnouLP++;
+      else if (d.farolLP.texto === 'Piora') pioraLP++;
+      if (d.farolMT.texto === 'Melhora') melhoraMT++;
+      else if (d.farolMT.texto === 'Estagnou') estagnouMT++;
+      else if (d.farolMT.texto === 'Piora') pioraMT++;
+    });
+
+    document.getElementById('kpiTotal').textContent = total;
+    document.getElementById('kpiAbaixoLP').textContent = abaixoLP;
+    document.getElementById('kpiAbaixoLPSub').textContent = total ? `${Math.round((abaixoLP/total)*100)}% do total` : '';
+    document.getElementById('kpiAbaixoMT').textContent = abaixoMT;
+    document.getElementById('kpiAbaixoMTSub').textContent = total ? `${Math.round((abaixoMT/total)*100)}% do total` : '';
+
+    document.getElementById('kpiFarolLP').innerHTML =
+      `<span class="farol-dot farol-green"></span>${melhoraLP} &nbsp;` +
+      `<span class="farol-dot farol-yellow"></span>${estagnouLP} &nbsp;` +
+      `<span class="farol-dot farol-red"></span>${pioraLP}`;
+
+    document.getElementById('kpiFarolMT').innerHTML =
+      `<span class="farol-dot farol-green"></span>${melhoraMT} &nbsp;` +
+      `<span class="farol-dot farol-yellow"></span>${estagnouMT} &nbsp;` +
+      `<span class="farol-dot farol-red"></span>${pioraMT}`;
+
+    const perfilLP = total && abaixoLP / total > 0.5;
+    const perfilMT = total && abaixoMT / total > 0.5;
+    const perfilEl = document.getElementById('kpiPerfil');
+    if (perfilLP || perfilMT) {
+      perfilEl.innerHTML = '<span style="color:var(--red)">Critico</span>';
+    } else {
+      perfilEl.innerHTML = '<span style="color:var(--green)">Estavel</span>';
+    }
+
+    // CHARTS
+    const statusCountLP = { "Abaixo do B\u00e1sico": 0, "B\u00e1sico": 0, "Proficiente": 0 };
+    const statusCountMT = { "Abaixo do B\u00e1sico": 0, "B\u00e1sico": 0, "Proficiente": 0 };
+    data.forEach(d => {
+      if (d.addLPstatus) statusCountLP[d.addLPstatus]++;
+      if (d.addMTstatus) statusCountMT[d.addMTstatus]++;
+    });
+
+    Object.values(charts).forEach(c => c.destroy());
+    charts = {};
+
+    const doughnutOpts = {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#7b8ba5', font: { size: 11 } } }
+      }
+    };
+
+    charts.statusLP = new Chart(document.getElementById('chartStatusLP'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(statusCountLP),
+        datasets: [{ data: Object.values(statusCountLP), backgroundColor: ['#f87171','#fbbf24','#34d399'], borderColor: 'transparent', borderWidth: 0 }]
+      },
+      options: doughnutOpts
+    });
+
+    charts.statusMT = new Chart(document.getElementById('chartStatusMT'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(statusCountMT),
+        datasets: [{ data: Object.values(statusCountMT), backgroundColor: ['#f87171','#fbbf24','#34d399'], borderColor: 'transparent', borderWidth: 0 }]
+      },
+      options: doughnutOpts
+    });
+
+    const mediaLP = data.reduce((acc, d) => acc + (parseFloat(d.ppLP) || 0), 0) / (data.length || 1);
+    const mediaMT = data.reduce((acc, d) => acc + (parseFloat(d.ppMT) || 0), 0) / (data.length || 1);
+
+    const barOpts = (color) => ({
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { max: 100, title: { display: true, text: '%', color: '#7b8ba5' }, ticks: { color: '#4a5a74' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        x: { ticks: { color: '#7b8ba5' }, grid: { display: false } }
+      }
+    });
+
+    charts.mediaLP = new Chart(document.getElementById('chartMediaLP'), {
+      type: 'bar',
+      data: { labels: ['LP'], datasets: [{ data: [mediaLP.toFixed(1)], backgroundColor: '#3b82f6', borderRadius: 8, maxBarThickness: 60 }] },
+      options: barOpts('#3b82f6')
+    });
+
+    charts.mediaMT = new Chart(document.getElementById('chartMediaMT'), {
+      type: 'bar',
+      data: { labels: ['MT'], datasets: [{ data: [mediaMT.toFixed(1)], backgroundColor: '#f59e0b', borderRadius: 8, maxBarThickness: 60 }] },
+      options: barOpts('#f59e0b')
+    });
+
+    // IMPROVEMENT LISTS
+    const renderTags = (list, elId) => {
+      const el = document.getElementById(elId);
+      if (list.length === 0) { el.innerHTML = '<span class="empty-msg">Nenhum estudante</span>'; return; }
+      el.innerHTML = list.map(n => `<span class="student-tag">${n}</span>`).join('');
+    };
+
+    renderTags(data.filter(d => d.farolLP.texto === 'Melhora').map(d => d.nome || '?'), 'melhoraLPList');
+    renderTags(data.filter(d => d.farolMT.texto === 'Melhora').map(d => d.nome || '?'), 'melhoraMTList');
+    renderTags(data.filter(d => d.farolLP.texto === 'Melhora' && d.farolMT.texto === 'Melhora').map(d => d.nome || '?'), 'melhoraAmbasList');
+
+    // TABLE
+    const tbody = document.getElementById('dashTableBody');
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-dim);padding:2rem;">Nenhum registro encontrado para o filtro selecionado.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(d => `
+      <tr>
+        <td>${d.escola}<br><small style="color:var(--text-dim)">${d.anoSerie || ''} &mdash; ${d.turma || ''}</small></td>
+        <td>${d.nome || '--'}</td>
+        <td>${d.addLPeq || '-'}</td>
+        <td><span class="badge ${badgeClass(d.addLPstatus)}">${d.addLPstatus || '?'}</span></td>
+        <td><span class="farol-dot ${d.farolLP.cor}"></span>${d.farolLP.texto}</td>
+        <td>${d.addMTeq || '-'}</td>
+        <td><span class="badge ${badgeClass(d.addMTstatus)}">${d.addMTstatus || '?'}</span></td>
+        <td><span class="farol-dot ${d.farolMT.cor}"></span>${d.farolMT.texto}</td>
+        <td>${d.ppLP ?? '-'}%</td>
+        <td>${d.ppMT ?? '-'}%</td>
+      </tr>
+    `).join('');
+  }
+
+  // ── INIT ──
+  populateDatalists();
   loadDashboard();
-  recarregarListaDescritores();
-  carregarPlanos();
 </script>
+
 </body>
 </html>
